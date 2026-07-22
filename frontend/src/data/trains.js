@@ -8,6 +8,10 @@ const trains = [
     departure: "06:00 AM",
     arrival: "01:30 PM",
     crowd: "Low",
+    occupancy: 35,
+    coach: "B2",
+    confidence: 98,
+    platform: 3,
   },
   {
     id: 2,
@@ -18,6 +22,10 @@ const trains = [
     departure: "02:15 PM",
     arrival: "09:45 PM",
     crowd: "Medium",
+    occupancy: 68,
+    coach: "B3",
+    confidence: 94,
+    platform: 5,
   },
   {
     id: 3,
@@ -28,6 +36,10 @@ const trains = [
     departure: "07:40 AM",
     arrival: "01:40 PM",
     crowd: "High",
+    occupancy: 92,
+    coach: "D1",
+    confidence: 97,
+    platform: 2,
   },
 ];
 

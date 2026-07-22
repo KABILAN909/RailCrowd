@@ -1,56 +1,34 @@
-import { useState } from "react";
-import trains from "../data/trains";
+import Navbar from "../components/Navbar";
 import TrainCard from "../components/TrainCard";
+import trains from "../data/trains";
 
 function TrainSearch() {
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-
-  const filteredTrains = trains.filter((train) => {
-    return (
-      train.from.toLowerCase().includes(from.toLowerCase()) &&
-      train.to.toLowerCase().includes(to.toLowerCase())
-    );
-  });
-
   return (
-    <div className="min-h-screen bg-[#05081c] text-white px-8 py-12">
-      <h1 className="text-5xl font-bold text-center mb-10">
-        Search Available Trains
-      </h1>
+    <>
+      <Navbar />
 
-      {/* Search Box */}
-      <div className="flex flex-col md:flex-row gap-4 justify-center mb-10">
-        <input
-          type="text"
-          placeholder="From Station"
-          value={from}
-          onChange={(e) => setFrom(e.target.value)}
-          className="bg-[#131b31] p-3 rounded-lg border border-gray-700 w-64"
-        />
+      <div className="min-h-screen bg-[#05081c] pt-28 px-8 pb-10">
 
-        <input
-          type="text"
-          placeholder="To Station"
-          value={to}
-          onChange={(e) => setTo(e.target.value)}
-          className="bg-[#131b31] p-3 rounded-lg border border-gray-700 w-64"
-        />
-      </div>
+        {/* Heading */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white">
+            🚆 Available Trains
+          </h1>
 
-      {/* Results */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredTrains.length > 0 ? (
-          filteredTrains.map((train) => (
-            <TrainCard key={train.id} train={train} />
-          ))
-        ) : (
-          <p className="text-center col-span-3 text-gray-400 text-xl">
-            No trains found.
+          <p className="text-gray-400 mt-4 text-lg">
+            AI-powered crowd prediction for your journey
           </p>
-        )}
+        </div>
+
+        {/* Train Cards */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {trains.map((train) => (
+            <TrainCard key={train.id} train={train} />
+          ))}
+        </div>
+
       </div>
-    </div>
+    </>
   );
 }
 
