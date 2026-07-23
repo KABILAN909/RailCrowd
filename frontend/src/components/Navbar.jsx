@@ -14,29 +14,47 @@ function Navbar() {
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-10 text-lg">
-          <Link to="/" className="hover:text-blue-400 transition">
+
+          <Link
+            to="/"
+            className="hover:text-blue-400 transition"
+          >
             Home
           </Link>
 
-          <Link to="/trains" className="hover:text-blue-400 transition">
+          <Link
+            to="/trains"
+            className="hover:text-blue-400 transition"
+          >
             Trains
           </Link>
 
-          <Link to="/prediction" className="hover:text-blue-400 transition">
-            Prediction
+          <Link
+            to="/dashboard"
+            className="hover:text-blue-400 transition"
+          >
+            Dashboard
           </Link>
 
-          <Link to="/about" className="hover:text-blue-400 transition">
+          <Link
+            to="/about"
+            className="hover:text-blue-400 transition"
+          >
             About
           </Link>
 
-          <Link to="/contact" className="hover:text-blue-400 transition">
+          <Link
+            to="/contact"
+            className="hover:text-blue-400 transition"
+          >
             Contact
           </Link>
+
         </div>
 
         {/* Right Side Buttons */}
         <div className="flex items-center gap-5">
+
           <button className="hover:text-blue-400 transition">
             Login
           </button>
@@ -44,7 +62,9 @@ function Navbar() {
           <button className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-xl font-semibold transition">
             Get Started
           </button>
+
         </div>
+
       </div>
     </nav>
   );
