@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Shatabdi Express",
+    "number": "12007",
+    "from": "Chennai",
+    "to": "Coimbatore",
+    "departure": "06:00 AM",
+    "arrival": "01:30 PM",
+    "crowd": "Medium",
+    "occupancy": 72,
+    "confidence": 98,
+    "coach": "B2",
+    "platform": "3"
+  },
+  {
+    "id": 2,
+    "name": "Brindavan Express",
+    "number": "12639",
+    "from": "Chennai",
+    "to": "Bengaluru",
+    "departure": "07:40 AM",
+    "arrival": "01:50 PM",
+    "crowd": "High",
+    "occupancy": 91,
+    "confidence": 95,
+    "coach": "D1",
+    "platform": "5"
+  },
+  {
+    "id": 3,
+    "name": "Kovai Express",
+    "number": "12675",
+    "from": "Chennai",
+    "to": "Coimbatore",
+    "departure": "02:15 PM",
+    "arrival": "09:30 PM",
+    "crowd": "Low",
+    "occupancy": 45,
+    "confidence": 99,
+    "coach": "C1",
+    "platform": "2"
+  }
+]
