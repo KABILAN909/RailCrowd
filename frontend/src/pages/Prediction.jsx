@@ -1,12 +1,26 @@
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import trains from "../data/trains";
 
 function Prediction() {
   const { id } = useParams();
+  const [train, setTrain] = useState(null);
 
-  const train = trains.find((item) => item.id === Number(id));
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/api/prediction/${id}`)
+      .then((response) => response.json())
+      .then((data) => setTrain(data))
+      .catch((error) => console.error("Error fetching prediction:", error));
+  }, [id]);
 
   if (!train) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#05081c] text-white">
+        <h1 className="text-3xl font-bold">Loading Prediction...</h1>
+      </div>
+    );
+  }
+
+  if (train.error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#05081c] text-white">
         <h1 className="text-3xl font-bold">🚆 Train Not Found</h1>
@@ -35,7 +49,6 @@ function Prediction() {
         </h2>
 
         {/* Train Details */}
-
         <div className="grid md:grid-cols-2 gap-8">
 
           <div>
@@ -81,7 +94,6 @@ function Prediction() {
         </div>
 
         {/* AI Confidence */}
-
         <div className="mt-10">
 
           <p className="mb-3 text-gray-300 font-semibold">
@@ -104,7 +116,6 @@ function Prediction() {
         </div>
 
         {/* AI Recommendation */}
-
         <div className="mt-10 bg-[#0d1327] rounded-xl p-6 border border-gray-700">
 
           <h3 className="text-2xl font-bold mb-4">
@@ -127,7 +138,6 @@ function Prediction() {
         </div>
 
         {/* Journey Summary */}
-
         <div className="mt-8 bg-[#0d1327] rounded-xl p-6 border border-gray-700">
 
           <h3 className="text-2xl font-bold mb-5">
@@ -136,29 +146,12 @@ function Prediction() {
 
           <div className="space-y-3 text-gray-300">
 
-            <p>
-              🚆 <strong>Train:</strong> {train.name}
-            </p>
-
-            <p>
-              📍 <strong>Route:</strong> {train.from} → {train.to}
-            </p>
-
-            <p>
-              🕒 <strong>Departure:</strong> {train.departure}
-            </p>
-
-            <p>
-              🕓 <strong>Arrival:</strong> {train.arrival}
-            </p>
-
-            <p>
-              🚉 <strong>Platform:</strong> {train.platform}
-            </p>
-
-            <p>
-              🚃 <strong>Suggested Coach:</strong> {train.coach}
-            </p>
+            <p>🚆 <strong>Train:</strong> {train.name}</p>
+            <p>📍 <strong>Route:</strong> {train.from} → {train.to}</p>
+            <p>🕒 <strong>Departure:</strong> {train.departure}</p>
+            <p>🕓 <strong>Arrival:</strong> {train.arrival}</p>
+            <p>🚉 <strong>Platform:</strong> {train.platform}</p>
+            <p>🚃 <strong>Suggested Coach:</strong> {train.coach}</p>
 
           </div>
 
