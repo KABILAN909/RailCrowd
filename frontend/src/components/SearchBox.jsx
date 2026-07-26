@@ -1,7 +1,23 @@
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function SearchBox() {
+  const navigate = useNavigate();
+
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+
+  const handleSearch = () => {
+    if (!from || !to) {
+      alert("Please enter both From and To stations.");
+      return;
+    }
+
+    navigate(`/trains?from=${from}&to=${to}`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 80 }}
@@ -23,6 +39,8 @@ function SearchBox() {
             <input
               type="text"
               placeholder="Chennai"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
               className="w-full bg-slate-800 text-white p-3 rounded-xl outline-none border border-slate-700"
             />
           </div>
@@ -37,6 +55,8 @@ function SearchBox() {
             <input
               type="text"
               placeholder="Coimbatore"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
               className="w-full bg-slate-800 text-white p-3 rounded-xl outline-none border border-slate-700"
             />
           </div>
@@ -72,7 +92,10 @@ function SearchBox() {
         </div>
 
         <div className="text-center mt-8">
-          <button className="bg-blue-600 hover:bg-blue-700 transition px-10 py-4 rounded-xl font-semibold flex items-center gap-2 mx-auto">
+          <button
+            onClick={handleSearch}
+            className="bg-blue-600 hover:bg-blue-700 transition px-10 py-4 rounded-xl font-semibold flex items-center gap-2 mx-auto"
+          >
             <Search size={20} />
             Search Trains
           </button>
