@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "stationCode": "SBC",
+    "stationName": "KSR Bengaluru"
+  },
+  {
+    "id": 2,
+    "stationCode": "BAND",
+    "stationName": "Banaswadi"
+  },
+  {
+    "id": 3,
+    "stationCode": "BYPL",
+    "stationName": "Baiyyappanahalli"
+  },
+  {
+    "id": 4,
+    "stationCode": "HSRA",
+    "stationName": "Hosur"
+  },
+  {
+    "id": 5,
+    "stationCode": "DPJ",
+    "stationName": "Dharmapuri"
+  },
+  {
+    "id": 6,
+    "stationCode": "SA",
+    "stationName": "Salem Junction"
+  }
+]
