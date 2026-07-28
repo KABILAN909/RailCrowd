@@ -1,21 +1,36 @@
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function SearchBox() {
   const navigate = useNavigate();
 
+  const [stations, setStations] = useState([]);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
 
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/api/stations")
+      .then((res) => res.json())
+      .then((data) => setStations(data))
+      .catch((err) => console.error("Error loading stations:", err));
+  }, []);
+
   const handleSearch = () => {
     if (!from || !to) {
-      alert("Please enter both From and To stations.");
+      alert("Please select both From and To stations.");
       return;
     }
 
-    navigate(`/trains?from=${from}&to=${to}`);
+    if (from === to) {
+      alert("From and To stations cannot be the same.");
+      return;
+    }
+
+    navigate(
+      `/trains?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
+    );
   };
 
   return (
@@ -36,13 +51,24 @@ function SearchBox() {
               From Station
             </label>
 
-            <input
-              type="text"
-              placeholder="Chennai"
+            <select
               value={from}
               onChange={(e) => setFrom(e.target.value)}
-              className="w-full bg-slate-800 text-white p-3 rounded-xl outline-none border border-slate-700"
-            />
+              className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-700"
+            >
+              <option value="" disabled>
+                Select Station
+              </option>
+
+              {stations.map((station) => (
+                <option
+                  key={station.id}
+                  value={station.stationName}
+                >
+                  {station.stationName}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* To */}
@@ -52,16 +78,27 @@ function SearchBox() {
               To Station
             </label>
 
-            <input
-              type="text"
-              placeholder="Coimbatore"
+            <select
               value={to}
               onChange={(e) => setTo(e.target.value)}
-              className="w-full bg-slate-800 text-white p-3 rounded-xl outline-none border border-slate-700"
-            />
+              className="w-full bg-slate-800 text-white p-3 rounded-xl border border-slate-700"
+            >
+              <option value="" disabled>
+                Select Station
+              </option>
+
+              {stations.map((station) => (
+                <option
+                  key={station.id}
+                  value={station.stationName}
+                >
+                  {station.stationName}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Date */}
+          {/* Journey Date */}
           <div>
             <label className="text-gray-300 text-sm mb-2 flex items-center gap-2">
               <Calendar size={18} />
