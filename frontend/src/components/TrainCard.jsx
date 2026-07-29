@@ -1,10 +1,26 @@
 import { Link } from "react-router-dom";
 
 function TrainCard({ train }) {
+
+  // AI Prediction Logic
+  let crowd = "";
+  let confidence = 0;
+
+  if (train.occupancy < 50) {
+    crowd = "Low";
+    confidence = 98;
+  } else if (train.occupancy <= 80) {
+    crowd = "Medium";
+    confidence = 95;
+  } else {
+    crowd = "High";
+    confidence = 92;
+  }
+
   const crowdColor =
-    train.crowd === "Low"
+    crowd === "Low"
       ? "bg-green-600"
-      : train.crowd === "Medium"
+      : crowd === "Medium"
       ? "bg-yellow-500"
       : "bg-red-600";
 
@@ -39,7 +55,7 @@ function TrainCard({ train }) {
         <span
           className={`px-5 py-2 rounded-full text-white font-semibold ${crowdColor}`}
         >
-          Crowd : {train.crowd}
+          Crowd : {crowd}
         </span>
       </div>
 
@@ -59,7 +75,7 @@ function TrainCard({ train }) {
 
       {/* AI Details */}
       <div className="mt-6 space-y-3 text-gray-300">
-        <p>🤖 AI Confidence : {train.confidence}%</p>
+        <p>🤖 AI Confidence : {confidence}%</p>
         <p>🚃 Recommended Coach : {train.coach}</p>
         <p>🚉 Platform : {train.platform}</p>
       </div>

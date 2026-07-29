@@ -3,6 +3,7 @@ from flask_cors import CORS
 
 from routes.trains import trains_bp
 from routes.prediction import prediction_bp
+from routes.dashboard import dashboard_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -10,11 +11,13 @@ CORS(app)
 # Register Blueprints
 app.register_blueprint(trains_bp)
 app.register_blueprint(prediction_bp)
+app.register_blueprint(dashboard_bp)
 
 # Home Route
 @app.route("/")
 def home():
     return "🚆 RailCrowd Backend is Running Successfully!"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
