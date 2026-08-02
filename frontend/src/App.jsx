@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
@@ -14,39 +15,47 @@ import Register from "./pages/Register";
 
 function App() {
   return (
-    <div className="bg-[#05081c] min-h-screen">
+    <div className="bg-[#05081c] min-h-screen flex flex-col">
+
       {/* Navbar */}
       <Navbar />
 
-      {/* Routes */}
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/trains" element={<TrainSearch />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* Main Content */}
+      <main className="flex-grow">
+        <Routes>
 
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/trains" element={<TrainSearch />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/prediction/:id"
-          element={
-            <ProtectedRoute>
-              <Prediction />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/prediction/:id"
+            element={
+              <ProtectedRoute>
+                <Prediction />
+              </ProtectedRoute>
+            }
+          />
+
+        </Routes>
+      </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
