@@ -35,8 +35,8 @@ function Login() {
 
         alert(data.message);
 
-        // Redirect to Dashboard
-        navigate("/dashboard");
+        // Redirect and refresh Navbar
+        window.location.href = "/dashboard";
       } else {
         alert(data.message);
       }
@@ -83,7 +83,7 @@ function Login() {
 
         <p className="text-center text-gray-400 mt-6">
           Don't have an account?{" "}
-          <Link to="/register" className="text-blue-400">
+          <Link to="/register" className="text-blue-400 hover:underline">
             Register
           </Link>
         </p>
