@@ -4,20 +4,17 @@ from services.prediction_service import load_trains, load_stations
 trains_bp = Blueprint("trains", __name__)
 
 
-# Get All Trains
-@trains_bp.route("/api/trains")
+@trains_bp.route("/trains")
 def get_trains():
     return jsonify(load_trains())
 
 
-# Get All Stations
-@trains_bp.route("/api/stations")
+@trains_bp.route("/stations")
 def get_stations():
     return jsonify(load_stations())
 
 
-# Search Trains
-@trains_bp.route("/api/search")
+@trains_bp.route("/search")
 def search_trains():
 
     from_station = request.args.get("from", "").strip().lower()

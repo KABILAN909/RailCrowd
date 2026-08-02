@@ -4,7 +4,7 @@ from services.prediction_service import load_trains, generate_prediction
 dashboard_bp = Blueprint("dashboard", __name__)
 
 
-@dashboard_bp.route("/api/dashboard")
+@dashboard_bp.route("/dashboard")
 def dashboard():
 
     trains = load_trains()

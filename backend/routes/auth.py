@@ -4,10 +4,17 @@ from services.auth_service import register_user, login_user
 auth_bp = Blueprint("auth", __name__)
 
 
+# ---------------- Register ---------------- #
+
 @auth_bp.route("/register", methods=["POST"])
 def register():
 
     data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "message": "Invalid JSON"
+        }), 400
 
     name = data.get("name", "").strip()
     email = data.get("email", "").strip()
@@ -30,17 +37,24 @@ def register():
     }), 400
 
 
+# ---------------- Login ---------------- #
+
 @auth_bp.route("/login", methods=["POST"])
 def login():
 
     data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "message": "Invalid JSON"
+        }), 400
 
     email = data.get("email", "").strip()
     password = data.get("password", "").strip()
 
     if not email or not password:
         return jsonify({
-            "message": "Email and password are required"
+            "message": "Email and Password are required"
         }), 400
 
     result = login_user(email, password)

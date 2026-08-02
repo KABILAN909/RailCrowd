@@ -4,7 +4,7 @@ from services.contact_service import save_contact
 contact_bp = Blueprint("contact", __name__)
 
 
-@contact_bp.route("/api/contact", methods=["POST"])
+@contact_bp.route("/contact", methods=["POST"])
 def contact():
 
     data = request.get_json()

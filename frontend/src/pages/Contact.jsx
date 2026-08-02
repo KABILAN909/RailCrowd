@@ -74,6 +74,7 @@ function Contact() {
         <div className="grid lg:grid-cols-2 gap-12">
 
           {/* Contact Details */}
+
           <div className="space-y-8">
 
             <div className="bg-[#131b31] p-6 rounded-2xl">
@@ -103,6 +104,7 @@ function Contact() {
           </div>
 
           {/* Contact Form */}
+
           <form
             onSubmit={handleSubmit}
             className="bg-[#131b31] p-8 rounded-2xl space-y-5"
@@ -145,6 +147,7 @@ function Contact() {
             ></textarea>
 
             <button
+              type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl flex justify-center items-center gap-3 font-semibold"
             >
               <Send size={20} />

@@ -14,14 +14,13 @@ app = Flask(__name__)
 CORS(app)
 
 # Register Blueprints
-app.register_blueprint(trains_bp)
-app.register_blueprint(prediction_bp)
-app.register_blueprint(dashboard_bp)
-app.register_blueprint(auth_bp)
-app.register_blueprint(contact_bp)
+app.register_blueprint(trains_bp, url_prefix="/api")
+app.register_blueprint(prediction_bp, url_prefix="/api")
+app.register_blueprint(dashboard_bp, url_prefix="/api")
+app.register_blueprint(auth_bp, url_prefix="/api")
+app.register_blueprint(contact_bp, url_prefix="/api")
 
 
-# Home Route
 @app.route("/")
 def home():
     return {
