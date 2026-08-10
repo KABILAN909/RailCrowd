@@ -12,28 +12,48 @@ function TrainSearch() {
   const to = searchParams.get("to");
 
   useEffect(() => {
-    let url = "http://127.0.0.1:5000/api/trains";
+    const fetchTrains = async () => {
+      setLoading(true);
 
-    if (from && to) {
-      url = `http://127.0.0.1:5000/api/search?from=${encodeURIComponent(
-        from
-      )}&to=${encodeURIComponent(to)}`;
-    }
+      try {
+        let url = "http://127.0.0.1:5000/api/trains";
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        setTrains(data);
-        setLoading(false);
-      })
-      .catch((error) => {
+        if (from && to) {
+          url = `http://127.0.0.1:5000/api/trains?from=${encodeURIComponent(
+            from
+          )}&to=${encodeURIComponent(to)}`;
+        }
+
+        console.log("Fetching trains from:", url);
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        console.log("Train API response:", data);
+
+        if (data.success) {
+          setTrains(data.trains || []);
+        } else {
+          setTrains([]);
+        }
+      } catch (error) {
         console.error("Error fetching trains:", error);
+        setTrains([]);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchTrains();
   }, [from, to]);
 
   return (
-    <div className="min-h-screen bg-[#05081c] pt-28 px-8 pb-10">
+    <div className="min-h-screen bg-slate-950 pt-32 px-6">
 
       {/* Heading */}
       <div className="text-center mb-12">
@@ -54,7 +74,8 @@ function TrainSearch() {
 
             {!loading && (
               <p className="text-green-400 mt-2 text-lg font-semibold">
-                {trains.length} {trains.length === 1 ? "Train" : "Trains"} Found
+                {trains.length}{" "}
+                {trains.length === 1 ? "Train" : "Trains"} Found
               </p>
             )}
           </>
@@ -70,8 +91,11 @@ function TrainSearch() {
             Loading trains...
           </p>
         ) : trains.length > 0 ? (
-          trains.map((train) => (
-            <TrainCard key={train.id} train={train} />
+          trains.map((train, index) => (
+            <TrainCard
+              key={train.train_number || index}
+              train={train}
+            />
           ))
         ) : (
           <p className="text-red-400 text-center col-span-3 text-2xl font-semibold">

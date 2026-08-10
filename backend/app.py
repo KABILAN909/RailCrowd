@@ -1,32 +1,82 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 
-# Import Blueprints
-from routes.trains import trains_bp
-from routes.prediction import prediction_bp
-from routes.dashboard import dashboard_bp
+# Routes
 from routes.auth import auth_bp
-from routes.contact import contact_bp
+from routes.train_routes import train_bp
+from routes.stations import stations_bp
+
+
+# --------------------------------------------------
+# Create Flask App
+# --------------------------------------------------
 
 app = Flask(__name__)
 
-# Enable CORS
+# Allow React frontend to access Flask API
 CORS(app)
 
+
+# --------------------------------------------------
 # Register Blueprints
-app.register_blueprint(trains_bp, url_prefix="/api")
-app.register_blueprint(prediction_bp, url_prefix="/api")
-app.register_blueprint(dashboard_bp, url_prefix="/api")
-app.register_blueprint(auth_bp, url_prefix="/api")
-app.register_blueprint(contact_bp, url_prefix="/api")
+# --------------------------------------------------
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(train_bp)
+app.register_blueprint(stations_bp)
 
 
-@app.route("/")
+# --------------------------------------------------
+# Home / Health Check
+# --------------------------------------------------
+
+@app.route("/", methods=["GET"])
 def home():
-    return {
-        "message": "🚆 RailCrowd Backend API is Running Successfully!"
-    }
+    return jsonify({
+        "success": True,
+        "message": "RailCrowd API is running"
+    }), 200
 
+
+# --------------------------------------------------
+# API Health Check
+# --------------------------------------------------
+
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({
+        "success": True,
+        "message": "RailCrowd backend is healthy"
+    }), 200
+
+
+# --------------------------------------------------
+# Error Handlers
+# --------------------------------------------------
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "message": "API endpoint not found"
+    }), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({
+        "success": False,
+        "message": "Internal server error"
+    }), 500
+
+
+# --------------------------------------------------
+# Run Server
+# --------------------------------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        host="127.0.0.1",
+        port=5000,
+        debug=True
+    )
