@@ -23,6 +23,7 @@ train_bp = Blueprint("train", __name__)
 def get_train(train_number):
 
     try:
+
         trains = get_train_by_number(train_number)
 
         if trains is None:
@@ -44,50 +45,57 @@ def get_train(train_number):
 
     except Exception as error:
 
-        print(f"❌ Train route error: {error}")
+        print("❌ Train route error:", error)
 
         return jsonify({
             "success": False,
-            "message": "Internal server error"
+            "message": "Internal server error",
+            "error": str(error)
         }), 500
 
 
 # ============================================================
 # Search trains between two stations
 #
-# Supports BOTH:
-#
-# GET /api/trains?from=SBC&to=MAS
-#
 # GET /api/trains/search?from=SBC&to=MAS
-#
 # ============================================================
 
-@train_bp.route("/api/trains", methods=["GET"])
 @train_bp.route("/api/trains/search", methods=["GET"])
 def search_train_routes():
 
-    from_code = request.args.get("from", "").strip().upper()
-    to_code = request.args.get("to", "").strip().upper()
+    from_code = request.args.get(
+        "from",
+        ""
+    ).strip().upper()
+
+    to_code = request.args.get(
+        "to",
+        ""
+    ).strip().upper()
+
 
     # --------------------------------------------------------
     # Validate
     # --------------------------------------------------------
 
     if not from_code or not to_code:
+
         return jsonify({
             "success": False,
             "message": "From and To stations are required"
         }), 400
 
+
     if from_code == to_code:
+
         return jsonify({
             "success": False,
             "message": "From and To stations cannot be the same"
         }), 400
 
+
     # --------------------------------------------------------
-    # Search database
+    # Search
     # --------------------------------------------------------
 
     try:
@@ -97,17 +105,17 @@ def search_train_routes():
             to_code
         )
 
+
         if trains is None:
+
             return jsonify({
                 "success": False,
                 "message": "Unable to search trains"
             }), 500
 
-        # ----------------------------------------------------
-        # No trains found
-        # ----------------------------------------------------
 
         if not trains:
+
             return jsonify({
                 "success": True,
                 "from": from_code,
@@ -117,9 +125,6 @@ def search_train_routes():
                 "message": "No trains found for this route"
             }), 200
 
-        # ----------------------------------------------------
-        # Trains found
-        # ----------------------------------------------------
 
         return jsonify({
             "success": True,
@@ -129,11 +134,13 @@ def search_train_routes():
             "trains": trains
         }), 200
 
+
     except Exception as error:
 
-        print(f"❌ Train search route error: {error}")
+        print("❌ Train search route error:", error)
 
         return jsonify({
             "success": False,
-            "message": "Internal server error"
+            "message": "Internal server error",
+            "error": str(error)
         }), 500

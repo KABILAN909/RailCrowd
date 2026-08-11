@@ -1,24 +1,96 @@
 from database import get_db_connection
 
+from decimal import Decimal
+from datetime import timedelta, time, datetime
+
+
+# ============================================================
+# Convert MySQL values to JSON-safe values
+# ============================================================
+
+def make_json_safe(value):
+
+    if value is None:
+        return None
+
+    # MySQL TIME
+    if isinstance(value, time):
+        return value.strftime("%H:%M")
+
+    # MySQL TIME as timedelta
+    if isinstance(value, timedelta):
+
+        total_seconds = int(
+            value.total_seconds()
+        )
+
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+
+        return f"{hours:02d}:{minutes:02d}"
+
+    # Date / datetime
+    if isinstance(value, datetime):
+        return value.isoformat()
+
+    # Decimal
+    if isinstance(value, Decimal):
+        return float(value)
+
+    return value
+
+
+# ============================================================
+# Clean database row
+# ============================================================
+
+def clean_row(row):
+
+    if isinstance(row, dict):
+
+        return {
+            key: make_json_safe(value)
+            for key, value in row.items()
+        }
+
+    return tuple(
+        make_json_safe(value)
+        for value in row
+    )
+
 
 # ============================================================
 # Get train details by train number
+#
+# Example:
+# get_train_by_number("12608")
 # ============================================================
 
 def get_train_by_number(train_number):
+
     connection = get_db_connection()
 
     if not connection:
+
+        print("❌ Database connection failed")
+
         return None
 
-    cursor = connection.cursor()
+    cursor = None
 
     try:
+
+        # IMPORTANT:
+        # database.py already uses DictCursor
+        cursor = connection.cursor()
+
         query = """
             SELECT
+                t.id AS train_id,
                 t.train_number,
                 t.train_name,
 
+                s.id AS station_id,
                 s.station_code,
                 s.station_name,
                 s.city,
@@ -43,36 +115,71 @@ def get_train_by_number(train_number):
             ORDER BY ts.stop_number
         """
 
-        cursor.execute(query, (train_number,))
+        cursor.execute(
+            query,
+            (train_number,)
+        )
 
         rows = cursor.fetchall()
+
+        rows = [
+            clean_row(row)
+            for row in rows
+        ]
+
+        print(
+            f"✅ Train {train_number}: "
+            f"{len(rows)} stops found"
+        )
 
         return rows
 
     except Exception as error:
-        print(f"❌ Train service error: {error}")
+
+        print(
+            f"❌ Train service error: {error}"
+        )
+
         return None
 
     finally:
-        cursor.close()
-        connection.close()
+
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
 
 
 # ============================================================
 # Search trains between two stations
+#
+# Example:
+# search_trains("SBC", "MAS")
 # ============================================================
 
 def search_trains(from_code, to_code):
+
     connection = get_db_connection()
 
     if not connection:
+
+        print("❌ Database connection failed")
+
         return None
 
-    cursor = connection.cursor()
+    cursor = None
 
     try:
+
+        # IMPORTANT:
+        # database.py already uses DictCursor
+        cursor = connection.cursor()
+
         query = """
             SELECT
+
+                t.id AS train_id,
                 t.train_number,
                 t.train_name,
 
@@ -110,16 +217,37 @@ def search_trains(from_code, to_code):
             ORDER BY ts1.departure_time
         """
 
-        cursor.execute(query, (from_code, to_code))
+        cursor.execute(
+            query,
+            (from_code, to_code)
+        )
 
         rows = cursor.fetchall()
+
+        rows = [
+            clean_row(row)
+            for row in rows
+        ]
+
+        print(
+            f"✅ Search {from_code} -> {to_code}: "
+            f"{len(rows)} trains found"
+        )
 
         return rows
 
     except Exception as error:
-        print(f"❌ Train search error: {error}")
+
+        print(
+            f"❌ Train search error: {error}"
+        )
+
         return None
 
     finally:
-        cursor.close()
-        connection.close()
+
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()

@@ -5,57 +5,131 @@ import TrainCard from "../components/TrainCard";
 function TrainSearch() {
   const [trains, setTrains] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [searchParams] = useSearchParams();
 
   const from = searchParams.get("from");
   const to = searchParams.get("to");
 
+  // ==========================================================
+  // Fetch trains
+  // ==========================================================
+
   useEffect(() => {
     const fetchTrains = async () => {
       setLoading(true);
+      setError("");
+      setTrains([]);
 
       try {
-        let url = "http://127.0.0.1:5000/api/trains";
+        // ----------------------------------------------------
+        // Check route parameters
+        // ----------------------------------------------------
 
-        if (from && to) {
-          url = `http://127.0.0.1:5000/api/trains?from=${encodeURIComponent(
-            from
-          )}&to=${encodeURIComponent(to)}`;
+        if (!from || !to) {
+          setError("Please select both From and To stations.");
+          setLoading(false);
+          return;
         }
 
-        console.log("Fetching trains from:", url);
+        // ----------------------------------------------------
+        // Build backend URL
+        // ----------------------------------------------------
+
+        const url =
+          `http://127.0.0.1:5000/api/trains/search` +
+          `?from=${encodeURIComponent(from)}` +
+          `&to=${encodeURIComponent(to)}`;
+
+        console.log("🚆 Searching trains:");
+        console.log("From:", from);
+        console.log("To:", to);
+        console.log("API:", url);
+
+        // ----------------------------------------------------
+        // API request
+        // ----------------------------------------------------
 
         const response = await fetch(url);
 
         if (!response.ok) {
-          throw new Error(`HTTP error: ${response.status}`);
+          throw new Error(
+            `HTTP error: ${response.status}`
+          );
         }
 
         const data = await response.json();
 
-        console.log("Train API response:", data);
+        console.log(
+          "🚆 Train search response:",
+          data
+        );
 
-        if (data.success) {
-          setTrains(data.trains || []);
-        } else {
-          setTrains([]);
+        // ----------------------------------------------------
+        // Backend validation
+        // ----------------------------------------------------
+
+        if (!data.success) {
+          throw new Error(
+            data.message ||
+              "Unable to search trains"
+          );
         }
-      } catch (error) {
-        console.error("Error fetching trains:", error);
+
+        // ----------------------------------------------------
+        // Backend response:
+        //
+        // {
+        //   success: true,
+        //   from: "SBC",
+        //   to: "MAS",
+        //   count: 1,
+        //   trains: [...]
+        // }
+        // ----------------------------------------------------
+
+        const trainList = Array.isArray(
+          data.trains
+        )
+          ? data.trains
+          : [];
+
+        setTrains(trainList);
+
+      } catch (err) {
+        console.error(
+          "❌ Error fetching trains:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Unable to fetch trains"
+        );
+
         setTrains([]);
+
       } finally {
         setLoading(false);
       }
     };
 
     fetchTrains();
+
   }, [from, to]);
 
-  return (
-    <div className="min-h-screen bg-slate-950 pt-32 px-6">
+  // ==========================================================
+  // Page
+  // ==========================================================
 
+  return (
+    <div className="min-h-screen bg-[#05081c] text-white px-6 pt-32 pb-10">
+
+      {/* ================================================== */}
       {/* Heading */}
+      {/* ================================================== */}
+
       <div className="text-center mb-12">
 
         <h1 className="text-5xl font-bold text-white">
@@ -66,42 +140,87 @@ function TrainSearch() {
           AI-powered crowd prediction for your journey
         </p>
 
-        {from && to && (
-          <>
-            <p className="text-blue-400 mt-4 text-2xl font-semibold">
-              📍 {from} → {to}
-            </p>
+        {/* Route */}
 
-            {!loading && (
-              <p className="text-green-400 mt-2 text-lg font-semibold">
-                {trains.length}{" "}
-                {trains.length === 1 ? "Train" : "Trains"} Found
-              </p>
-            )}
-          </>
+        {from && to && (
+          <p className="text-blue-400 mt-4 text-2xl font-semibold">
+            📍 {from} → {to}
+          </p>
         )}
+
+        {/* Train Count */}
+
+        {!loading &&
+          !error &&
+          from &&
+          to && (
+            <p className="text-green-400 mt-2 text-lg font-semibold">
+              {trains.length}{" "}
+              {trains.length === 1
+                ? "Train"
+                : "Trains"}{" "}
+              Found
+            </p>
+          )}
 
       </div>
 
+      {/* ================================================== */}
+      {/* Error */}
+      {/* ================================================== */}
+
+      {error && (
+        <div className="text-center mb-8">
+
+          <p className="text-red-400 text-xl font-semibold">
+            ❌ {error}
+          </p>
+
+        </div>
+      )}
+
+      {/* ================================================== */}
       {/* Train Cards */}
+      {/* ================================================== */}
+
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
 
-        {loading ? (
-          <p className="text-white text-center col-span-3 text-xl">
-            Loading trains...
-          </p>
-        ) : trains.length > 0 ? (
-          trains.map((train, index) => (
-            <TrainCard
-              key={train.train_number || index}
-              train={train}
-            />
-          ))
-        ) : (
-          <p className="text-red-400 text-center col-span-3 text-2xl font-semibold">
-            ❌ No trains found for this route.
+        {/* Loading */}
+
+        {loading && (
+          <p className="text-white text-center col-span-full text-xl">
+            🚆 Loading trains...
           </p>
         )}
+
+        {/* Results */}
+
+        {!loading &&
+          !error &&
+          trains.length > 0 &&
+          trains.map((train) => (
+
+            <TrainCard
+              key={
+                train.train_id ||
+                train.train_number
+              }
+              train={train}
+            />
+
+          ))}
+
+        {/* No Results */}
+
+        {!loading &&
+          !error &&
+          trains.length === 0 &&
+          from &&
+          to && (
+            <p className="text-red-400 text-center col-span-full text-2xl font-semibold">
+              ❌ No trains found for this route.
+            </p>
+          )}
 
       </div>
 

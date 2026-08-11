@@ -1,276 +1,272 @@
 import { Link } from "react-router-dom";
 
 function TrainCard({ train }) {
-  // ---------------------------------------------------------
-  // Data coming from Flask API
-  // ---------------------------------------------------------
 
-  const trainNumber = train?.train_number || "";
-  const trainName = train?.train_name || "Unknown Train";
+  // --------------------------------------------------
+  // Train Details
+  // --------------------------------------------------
 
-  const fromStation =
-    train?.from_station_name || train?.from_station_code || "Unknown";
+  const trainNumber =
+    train.train_number ||
+    train.number ||
+    "";
 
-  const toStation =
-    train?.to_station_name || train?.to_station_code || "Unknown";
+  const trainName =
+    train.train_name ||
+    train.name ||
+    "Unknown Train";
 
-  const departure = train?.departure_time || "--:--";
-  const arrival = train?.arrival_time || "--:--";
+  const from =
+    train.from_station_code ||
+    train.source_station ||
+    train.from ||
+    "";
 
-  // ---------------------------------------------------------
-  // Crowd prediction
-  //
-  // At this stage the search API does not return occupancy.
-  // Prediction API will be connected later.
-  // ---------------------------------------------------------
+  const to =
+    train.to_station_code ||
+    train.destination_station ||
+    train.to ||
+    "";
+
+  const departure =
+    train.departure_time ||
+    train.departure ||
+    "";
+
+  const arrival =
+    train.arrival_time ||
+    train.arrival ||
+    "";
+
+  // --------------------------------------------------
+  // Prediction Values
+  // --------------------------------------------------
 
   const occupancy =
-    train?.occupancy !== undefined && train?.occupancy !== null
-      ? Number(train.occupancy)
+    typeof train.occupancy === "number"
+      ? train.occupancy
       : null;
 
-  let crowd = "Not Available";
-  let confidence = 0;
-  let crowdColor = "bg-gray-600";
+  const crowd =
+    train.crowd ||
+    (
+      occupancy === null
+        ? "Unknown"
+        : occupancy < 50
+        ? "Low"
+        : occupancy <= 80
+        ? "Medium"
+        : "High"
+    );
 
-  if (occupancy !== null && !Number.isNaN(occupancy)) {
-    if (occupancy < 50) {
-      crowd = "Low";
-      confidence = 98;
-      crowdColor = "bg-green-600";
-    } else if (occupancy <= 80) {
-      crowd = "Medium";
-      confidence = 95;
-      crowdColor = "bg-yellow-500";
-    } else {
-      crowd = "High";
-      confidence = 92;
-      crowdColor = "bg-red-600";
-    }
-  }
+  const confidence =
+    typeof train.confidence === "number"
+      ? train.confidence
+      : null;
 
-  // ---------------------------------------------------------
-  // Prediction page
-  // IMPORTANT:
-  // Use train number instead of train.id
-  // ---------------------------------------------------------
+  const coach =
+    train.coach ||
+    "To be announced";
 
-  const predictionUrl = `/prediction/${encodeURIComponent(trainNumber)}`;
+  const platform =
+    train.platform ||
+    "To be announced";
+
+  // --------------------------------------------------
+  // Crowd Color
+  // --------------------------------------------------
+
+  const crowdColor =
+    crowd === "Low"
+      ? "bg-green-600"
+      : crowd === "Medium"
+      ? "bg-yellow-500"
+      : crowd === "High"
+      ? "bg-red-600"
+      : "bg-gray-600";
+
+  // --------------------------------------------------
+  // Prediction URL
+  // Backend expects TRAIN NUMBER
+  //
+  // Example:
+  // /prediction/12608
+  // --------------------------------------------------
+
+  const predictionUrl =
+    `/prediction/${trainNumber}`;
+
+  // --------------------------------------------------
+  // UI
+  // --------------------------------------------------
 
   return (
-    <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl hover:border-blue-500 transition duration-300">
 
-      {/* -------------------------------------------------- */}
+    <div className="bg-[#131b31] border border-blue-600 rounded-2xl p-6 shadow-xl hover:shadow-blue-900/30 transition duration-300">
+
       {/* Train Name */}
-      {/* -------------------------------------------------- */}
 
-      <h2 className="text-2xl font-bold text-white mb-2">
+      <h2 className="text-3xl font-bold text-white mb-2">
+
         🚆 {trainName}
+
       </h2>
 
-      {/* -------------------------------------------------- */}
-      {/* Train Number */}
-      {/* -------------------------------------------------- */}
 
-      <p className="text-gray-400 mb-6">
-        Train No:{" "}
-        <span className="text-blue-400 font-semibold">
-          {trainNumber}
-        </span>
+      {/* Train Number */}
+
+      <p className="text-gray-400 mb-5">
+
+        Train No: {trainNumber}
+
       </p>
 
-      {/* -------------------------------------------------- */}
+
       {/* Route */}
-      {/* -------------------------------------------------- */}
 
-      <div className="flex items-center justify-between gap-3 text-white">
+      <div className="flex justify-between items-center text-lg text-gray-300">
 
-        <div className="flex-1">
-          <p className="text-gray-400 text-sm">
-            From
-          </p>
+        <span>
+          {from || "N/A"}
+        </span>
 
-          <p className="font-semibold text-lg">
-            {fromStation}
-          </p>
-
-          {train?.from_station_code && (
-            <p className="text-blue-400 text-sm">
-              {train.from_station_code}
-            </p>
-          )}
-        </div>
-
-        <div className="text-2xl text-blue-400">
+        <span className="text-blue-400 text-2xl">
           →
-        </div>
+        </span>
 
-        <div className="flex-1 text-right">
-          <p className="text-gray-400 text-sm">
-            To
-          </p>
-
-          <p className="font-semibold text-lg">
-            {toStation}
-          </p>
-
-          {train?.to_station_code && (
-            <p className="text-blue-400 text-sm">
-              {train.to_station_code}
-            </p>
-          )}
-        </div>
-
-      </div>
-
-      {/* -------------------------------------------------- */}
-      {/* Timings */}
-      {/* -------------------------------------------------- */}
-
-      <div className="grid grid-cols-2 gap-4 mt-6">
-
-        <div className="bg-slate-800 rounded-xl p-4">
-          <p className="text-gray-400 text-sm">
-            Departure
-          </p>
-
-          <p className="text-white text-xl font-semibold mt-1">
-            {departure}
-          </p>
-        </div>
-
-        <div className="bg-slate-800 rounded-xl p-4">
-          <p className="text-gray-400 text-sm">
-            Arrival
-          </p>
-
-          <p className="text-white text-xl font-semibold mt-1">
-            {arrival}
-          </p>
-        </div>
-
-      </div>
-
-      {/* -------------------------------------------------- */}
-      {/* Distance */}
-      {/* -------------------------------------------------- */}
-
-      {train?.from_distance_km !== undefined &&
-        train?.to_distance_km !== undefined && (
-          <div className="mt-5 text-gray-400">
-            Distance:{" "}
-            <span className="text-white font-semibold">
-              {(
-                Number(train.to_distance_km) -
-                Number(train.from_distance_km)
-              ).toFixed(2)}{" "}
-              km
-            </span>
-          </div>
-        )}
-
-      {/* -------------------------------------------------- */}
-      {/* Crowd Level */}
-      {/* -------------------------------------------------- */}
-
-      <div className="mt-6">
-
-        <p className="text-gray-400 text-sm mb-2">
-          Predicted Crowd
-        </p>
-
-        <span
-          className={`inline-block px-5 py-2 rounded-full text-white font-semibold ${crowdColor}`}
-        >
-          {crowd === "Not Available"
-            ? "🤖 Prediction Pending"
-            : `👥 Crowd: ${crowd}`}
+        <span>
+          {to || "N/A"}
         </span>
 
       </div>
 
-      {/* -------------------------------------------------- */}
-      {/* Occupancy */}
-      {/* -------------------------------------------------- */}
+
+      {/* Timings */}
+
+      <div className="flex justify-between mt-3 text-gray-400">
+
+        <span>
+          🕒 {departure || "N/A"}
+        </span>
+
+        <span>
+          🕒 {arrival || "N/A"}
+        </span>
+
+      </div>
+
+
+      {/* Crowd Badge */}
 
       <div className="mt-6">
 
-        <div className="flex justify-between mb-2">
+        <span
+          className={`px-5 py-2 rounded-full text-white font-semibold ${crowdColor}`}
+        >
+          Crowd: {crowd}
+        </span>
 
-          <p className="text-gray-300">
-            Expected Occupancy
-          </p>
+      </div>
 
-          <p className="text-blue-400 font-semibold">
-            {occupancy !== null
-              ? `${occupancy}%`
-              : "Pending"}
-          </p>
 
-        </div>
+      {/* Occupancy */}
 
-        <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+      <div className="mt-6">
 
-          {occupancy !== null ? (
+        <p className="text-gray-300 mb-2">
+
+          Occupancy:{" "}
+
+          {occupancy !== null
+            ? `${occupancy}%`
+            : "Available in Prediction"}
+
+        </p>
+
+
+        {occupancy !== null && (
+
+          <div className="w-full bg-gray-700 rounded-full h-3">
+
             <div
               className="bg-blue-500 h-3 rounded-full transition-all duration-500"
               style={{
-                width: `${Math.min(Math.max(occupancy, 0), 100)}%`,
+                width: `${Math.min(
+                  Math.max(occupancy, 0),
+                  100
+                )}%`
               }}
-            />
-          ) : (
-            <div
-              className="bg-gray-600 h-3 rounded-full"
-              style={{ width: "5%" }}
-            />
-          )}
+            ></div>
 
-        </div>
+          </div>
+
+        )}
 
       </div>
 
-      {/* -------------------------------------------------- */}
-      {/* AI Information */}
-      {/* -------------------------------------------------- */}
+
+      {/* AI Details */}
 
       <div className="mt-6 space-y-3 text-gray-300">
 
         <p>
+
           🤖 AI Confidence:{" "}
-          <span className="text-white font-semibold">
-            {confidence > 0 ? `${confidence}%` : "Pending"}
+
+          <span className="text-blue-400 font-semibold">
+
+            {confidence !== null
+              ? `${confidence}%`
+              : "Available in Prediction"}
+
           </span>
+
         </p>
 
+
         <p>
+
           🚃 Recommended Coach:{" "}
-          <span className="text-white font-semibold">
-            {train?.coach || "Pending"}
+
+          <span className="font-semibold text-white">
+
+            {coach}
+
           </span>
+
         </p>
 
+
         <p>
+
           🚉 Platform:{" "}
-          <span className="text-white font-semibold">
-            {train?.platform || "Pending"}
+
+          <span className="font-semibold text-white">
+
+            {platform}
+
           </span>
+
         </p>
 
       </div>
 
-      {/* -------------------------------------------------- */}
+
       {/* Prediction Button */}
-      {/* -------------------------------------------------- */}
 
       <Link
         to={predictionUrl}
-        className="block w-full mt-8 bg-blue-600 hover:bg-blue-700 text-center text-white font-semibold py-3 rounded-xl transition duration-300"
+        className="block mt-8 bg-blue-600 hover:bg-blue-700 text-center text-white font-semibold py-3 rounded-xl transition duration-300"
       >
+
         🤖 View AI Prediction
+
       </Link>
 
     </div>
+
   );
+
 }
 
 export default TrainCard;
