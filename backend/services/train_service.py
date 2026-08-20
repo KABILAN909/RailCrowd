@@ -61,9 +61,6 @@ def clean_row(row):
 
 # ============================================================
 # Get train details by train number
-#
-# Example:
-# get_train_by_number("12608")
 # ============================================================
 
 def get_train_by_number(train_number):
@@ -72,7 +69,9 @@ def get_train_by_number(train_number):
 
     if not connection:
 
-        print("❌ Database connection failed")
+        print(
+            "❌ Database connection failed"
+        )
 
         return None
 
@@ -80,8 +79,6 @@ def get_train_by_number(train_number):
 
     try:
 
-        # IMPORTANT:
-        # database.py already uses DictCursor
         cursor = connection.cursor()
 
         query = """
@@ -153,9 +150,6 @@ def get_train_by_number(train_number):
 
 # ============================================================
 # Search trains between two stations
-#
-# Example:
-# search_trains("SBC", "MAS")
 # ============================================================
 
 def search_trains(from_code, to_code):
@@ -164,7 +158,9 @@ def search_trains(from_code, to_code):
 
     if not connection:
 
-        print("❌ Database connection failed")
+        print(
+            "❌ Database connection failed"
+        )
 
         return None
 
@@ -172,8 +168,6 @@ def search_trains(from_code, to_code):
 
     try:
 
-        # IMPORTANT:
-        # database.py already uses DictCursor
         cursor = connection.cursor()
 
         query = """
@@ -240,6 +234,69 @@ def search_trains(from_code, to_code):
 
         print(
             f"❌ Train search error: {error}"
+        )
+
+        return None
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if connection:
+            connection.close()
+
+
+# ============================================================
+# Get All Train Numbers
+#
+# Used for Dashboard Analytics
+# ============================================================
+
+def get_all_train_numbers():
+
+    connection = get_db_connection()
+
+    if not connection:
+
+        print(
+            "❌ Database connection failed"
+        )
+
+        return None
+
+    cursor = None
+
+    try:
+
+        cursor = connection.cursor()
+
+        query = """
+            SELECT
+                train_number
+            FROM trains
+            ORDER BY train_number
+        """
+
+        cursor.execute(query)
+
+        rows = cursor.fetchall()
+
+        rows = [
+            clean_row(row)
+            for row in rows
+        ]
+
+        print(
+            f"✅ Total trains found: {len(rows)}"
+        )
+
+        return rows
+
+    except Exception as error:
+
+        print(
+            f"❌ Get all trains error: {error}"
         )
 
         return None

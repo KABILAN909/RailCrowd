@@ -1,0 +1,546 @@
+/* =========================================================
+   Dashboard Page
+========================================================= */
+
+.dashboard-page {
+    min-height: 100vh;
+    padding: 40px;
+    background: #080d20;
+    color: #e5e7eb;
+}
+
+
+/* =========================================================
+   Header
+========================================================= */
+
+.dashboard-header {
+    max-width: 1200px;
+    margin: 0 auto 35px auto;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.dashboard-header p {
+    margin-top: 10px;
+    color: #9ca3af;
+    font-size: 16px;
+}
+
+
+/* =========================================================
+   Loading
+========================================================= */
+
+.dashboard-loading {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-loading h2 {
+    margin-bottom: 10px;
+}
+
+.dashboard-loading p {
+    color: #9ca3af;
+}
+
+
+/* =========================================================
+   Error
+========================================================= */
+
+.dashboard-error {
+    max-width: 600px;
+    margin: 80px auto;
+    padding: 35px;
+    text-align: center;
+    border-radius: 15px;
+    background: #141b2d;
+    border: 1px solid #334155;
+}
+
+.dashboard-error h2 {
+    margin-bottom: 15px;
+}
+
+.dashboard-error p {
+    color: #f87171;
+    margin-bottom: 20px;
+}
+
+.dashboard-error button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.dashboard-error button:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================================
+   Summary Stats
+========================================================= */
+
+.dashboard-stats {
+    max-width: 1200px;
+    margin: 0 auto 35px auto;
+
+    display: grid;
+    grid-template-columns: repeat(5, minmax(180px, 1fr));
+    gap: 18px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 22px;
+
+    background: #161f33;
+    border: 1px solid #334155;
+    border-radius: 14px;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: #3b82f6;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.stat-icon {
+    font-size: 28px;
+}
+
+.stat-card p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.stat-card h2 {
+    margin: 6px 0 0 0;
+    font-size: 26px;
+    color: #f8fafc;
+}
+
+
+/* =========================================================
+   Crowd Card Variants
+========================================================= */
+
+.high-card {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.high-card:hover {
+    border-color: #ef4444;
+}
+
+.medium-card {
+    border-color: rgba(234, 179, 8, 0.4);
+}
+
+.medium-card:hover {
+    border-color: #eab308;
+}
+
+.low-card {
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.low-card:hover {
+    border-color: #22c55e;
+}
+
+
+/* =========================================================
+   Dashboard Section
+========================================================= */
+
+.dashboard-section {
+    max-width: 1200px;
+    margin: 0 auto 35px auto;
+    padding: 28px;
+
+    background: #111827;
+    border: 1px solid #334155;
+    border-radius: 16px;
+}
+
+.dashboard-section h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 23px;
+    color: #f8fafc;
+}
+
+
+/* =========================================================
+   Crowd Distribution
+========================================================= */
+
+.distribution-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.distribution-item {
+    padding: 20px;
+    background: #1b2538;
+    border-radius: 12px;
+    border: 1px solid #334155;
+}
+
+.distribution-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.distribution-header span {
+    color: #cbd5e1;
+}
+
+.distribution-header strong {
+    font-size: 20px;
+    color: #f8fafc;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #0f172a;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.low-progress {
+    background: #22c55e;
+}
+
+.medium-progress {
+    background: #eab308;
+}
+
+.high-progress {
+    background: #ef4444;
+}
+
+.distribution-item p {
+    margin-bottom: 0;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   Train Table
+========================================================= */
+
+.train-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.train-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+.train-table thead {
+    background: #1e293b;
+}
+
+.train-table th {
+    padding: 16px;
+    text-align: left;
+
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.train-table td {
+    padding: 18px 16px;
+    border-top: 1px solid #273449;
+    color: #e5e7eb;
+}
+
+.train-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.train-table tbody tr:hover {
+    background: #1b2538;
+}
+
+
+/* =========================================================
+   Occupancy
+========================================================= */
+
+.occupancy-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mini-progress {
+    width: 100px;
+    height: 7px;
+
+    background: #0f172a;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+.occupancy-cell span {
+    min-width: 40px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   Crowd Badge
+========================================================= */
+
+.crowd-badge {
+    display: inline-block;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.crowd-badge.high {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.crowd-badge.medium {
+    background: rgba(234, 179, 8, 0.15);
+    color: #facc15;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.crowd-badge.low {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+
+/* =========================================================
+   Empty State
+========================================================= */
+
+.empty-state {
+    padding: 50px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.empty-state p {
+    margin: 0;
+}
+
+
+/* =========================================================
+   Crowd Summary Cards
+========================================================= */
+
+.crowd-summary-grid {
+    max-width: 1200px;
+    margin: 0 auto 40px auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.crowd-summary-card {
+    padding: 25px;
+
+    border-radius: 15px;
+
+    background: #161f33;
+    border: 1px solid #334155;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.crowd-summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.crowd-summary-card h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #e5e7eb;
+}
+
+.crowd-summary-card span {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   High Crowd Summary
+========================================================= */
+
+.high-summary {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.high-summary span {
+    color: #f87171;
+}
+
+
+/* =========================================================
+   Medium Crowd Summary
+========================================================= */
+
+.medium-summary {
+    border-color: rgba(234, 179, 8, 0.4);
+}
+
+.medium-summary span {
+    color: #facc15;
+}
+
+
+/* =========================================================
+   Low Crowd Summary
+========================================================= */
+
+.low-summary {
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.low-summary span {
+    color: #4ade80;
+}
+
+
+/* =========================================================
+   Responsive
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .dashboard-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+}
+
+
+@media (max-width: 800px) {
+
+    .dashboard-page {
+        padding: 25px 15px;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .distribution-container {
+        grid-template-columns: 1fr;
+    }
+
+    .crowd-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-section {
+        padding: 22px;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .dashboard-page {
+        padding: 20px 12px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 25px;
+    }
+
+    .dashboard-header p {
+        font-size: 14px;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-section {
+        padding: 18px;
+    }
+
+    .stat-card {
+        padding: 18px;
+    }
+
+    .dashboard-section h2 {
+        font-size: 20px;
+    }
+
+}
