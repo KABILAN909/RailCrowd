@@ -1,5 +1,5 @@
 /* =========================================================
-   Dashboard Page
+   DASHBOARD PAGE
 ========================================================= */
 
 .dashboard-page {
@@ -11,12 +11,38 @@
 
 
 /* =========================================================
-   Header
+   CENTER STATES
+========================================================= */
+
+.dashboard-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================================================
+   HEADER
 ========================================================= */
 
 .dashboard-header {
     max-width: 1200px;
     margin: 0 auto 35px auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.dashboard-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dashboard-title-icon {
+    font-size: 32px;
 }
 
 .dashboard-header h1 {
@@ -27,74 +53,157 @@
 }
 
 .dashboard-header p {
-    margin-top: 10px;
+    margin: 10px 0 0 44px;
     color: #9ca3af;
     font-size: 16px;
 }
 
+.header-refresh-button {
+    padding: 11px 18px;
+
+    border: 1px solid #3b82f6;
+    border-radius: 9px;
+
+    background: #172554;
+    color: #93c5fd;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.header-refresh-button:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.header-refresh-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 
 /* =========================================================
-   Loading
+   LOADING
 ========================================================= */
 
 .dashboard-loading {
-    min-height: 70vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 45px;
+
+    text-align: center;
+
+    background: #111827;
+    border: 1px solid #334155;
+    border-radius: 18px;
+}
+
+.loading-spinner {
+    width: 55px;
+    height: 55px;
+
+    margin: 0 auto 25px auto;
+
+    border: 4px solid #334155;
+    border-top-color: #3b82f6;
+
+    border-radius: 50%;
+
+    animation: dashboard-spin 1s linear infinite;
 }
 
 .dashboard-loading h2 {
-    margin-bottom: 10px;
+    margin: 0 0 10px 0;
+
+    font-size: 24px;
+    color: #f8fafc;
 }
 
 .dashboard-loading p {
-    color: #9ca3af;
+    margin: 0;
+
+    color: #94a3b8;
+    line-height: 1.7;
+}
+
+@keyframes dashboard-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 
 /* =========================================================
-   Error
+   ERROR
 ========================================================= */
 
 .dashboard-error {
+    width: 100%;
     max-width: 600px;
-    margin: 80px auto;
-    padding: 35px;
+
+    padding: 40px;
+
     text-align: center;
-    border-radius: 15px;
+
     background: #141b2d;
-    border: 1px solid #334155;
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    border-radius: 16px;
 }
 
-.dashboard-error h2 {
+.error-icon {
+    font-size: 52px;
     margin-bottom: 15px;
 }
 
-.dashboard-error p {
+.dashboard-error h2 {
+    margin: 0 0 15px 0;
+
     color: #f87171;
-    margin-bottom: 20px;
+    font-size: 26px;
+}
+
+.dashboard-error p {
+    margin: 0 0 25px 0;
+
+    color: #cbd5e1;
+    line-height: 1.7;
 }
 
 .dashboard-error button {
-    padding: 10px 20px;
+    padding: 11px 22px;
+
     border: none;
-    border-radius: 8px;
+    border-radius: 9px;
+
     background: #2563eb;
-    color: white;
+    color: #ffffff;
+
     font-size: 15px;
+    font-weight: 600;
+
     cursor: pointer;
-    transition: background 0.2s ease;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .dashboard-error button:hover {
     background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
 
 /* =========================================================
-   Summary Stats
+   SUMMARY STATS
 ========================================================= */
 
 .dashboard-stats {
@@ -102,11 +211,13 @@
     margin: 0 auto 35px auto;
 
     display: grid;
-    grid-template-columns: repeat(5, minmax(180px, 1fr));
+    grid-template-columns: repeat(5, minmax(170px, 1fr));
     gap: 18px;
 }
 
 .stat-card {
+    min-height: 105px;
+
     display: flex;
     align-items: center;
     gap: 15px;
@@ -131,23 +242,26 @@
 
 .stat-icon {
     font-size: 28px;
+    flex-shrink: 0;
 }
 
 .stat-card p {
     margin: 0;
+
     color: #94a3b8;
     font-size: 14px;
 }
 
 .stat-card h2 {
     margin: 6px 0 0 0;
-    font-size: 26px;
+
+    font-size: 27px;
     color: #f8fafc;
 }
 
 
 /* =========================================================
-   Crowd Card Variants
+   STAT VARIANTS
 ========================================================= */
 
 .high-card {
@@ -176,12 +290,13 @@
 
 
 /* =========================================================
-   Dashboard Section
+   DASHBOARD SECTION
 ========================================================= */
 
 .dashboard-section {
     max-width: 1200px;
     margin: 0 auto 35px auto;
+
     padding: 28px;
 
     background: #111827;
@@ -189,16 +304,49 @@
     border-radius: 16px;
 }
 
-.dashboard-section h2 {
-    margin-top: 0;
+.section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
     margin-bottom: 25px;
+}
+
+.dashboard-section h2 {
+    margin: 0;
+
     font-size: 23px;
     color: #f8fafc;
 }
 
+.section-heading p {
+    margin: 8px 0 0 0;
+
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.prediction-count {
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    background: #172554;
+    border: 1px solid #1d4ed8;
+
+    color: #93c5fd;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
 
 /* =========================================================
-   Crowd Distribution
+   CROWD DISTRIBUTION
 ========================================================= */
 
 .distribution-container {
@@ -209,20 +357,36 @@
 
 .distribution-item {
     padding: 20px;
+
     background: #1b2538;
+
     border-radius: 12px;
     border: 1px solid #334155;
 }
 
+.low-distribution {
+    border-color: rgba(34, 197, 94, 0.25);
+}
+
+.medium-distribution {
+    border-color: rgba(234, 179, 8, 0.25);
+}
+
+.high-distribution {
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
 .distribution-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+
     margin-bottom: 15px;
 }
 
 .distribution-header span {
     color: #cbd5e1;
+    font-weight: 500;
 }
 
 .distribution-header strong {
@@ -233,15 +397,20 @@
 .progress-bar {
     width: 100%;
     height: 10px;
+
     overflow: hidden;
+
     border-radius: 10px;
+
     background: #0f172a;
 }
 
 .progress-fill {
     height: 100%;
+
     border-radius: 10px;
-    transition: width 0.5s ease;
+
+    transition: width 0.6s ease;
 }
 
 .low-progress {
@@ -257,26 +426,132 @@
 }
 
 .distribution-item p {
-    margin-bottom: 0;
+    margin: 10px 0 0 0;
+
     color: #94a3b8;
     font-size: 14px;
 }
 
 
 /* =========================================================
-   Train Table
+   TRAVEL INSIGHTS
+========================================================= */
+
+.crowd-summary-grid {
+    max-width: 1200px;
+    margin: 0 auto 35px auto;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.crowd-summary-card {
+    min-height: 125px;
+
+    padding: 23px;
+
+    border-radius: 15px;
+
+    background: #161f33;
+    border: 1px solid #334155;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.crowd-summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.crowd-summary-card h3 {
+    margin: 0;
+
+    font-size: 17px;
+    color: #e5e7eb;
+}
+
+.crowd-summary-card p {
+    margin: 8px 0 0 0;
+
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.crowd-summary-card small {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #64748b;
+    font-size: 12px;
+}
+
+.crowd-summary-card > span {
+    font-size: 30px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   SUMMARY COLORS
+========================================================= */
+
+.high-summary {
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.high-summary > span {
+    color: #f87171;
+}
+
+.average-summary {
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.average-summary > span {
+    color: #60a5fa;
+}
+
+.low-summary {
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.low-summary > span {
+    color: #4ade80;
+}
+
+
+/* =========================================================
+   TRAIN TABLE
 ========================================================= */
 
 .train-table-container {
     width: 100%;
+
     overflow-x: auto;
+
     border-radius: 12px;
+
+    border: 1px solid #273449;
 }
 
 .train-table {
     width: 100%;
+
     border-collapse: collapse;
-    min-width: 850px;
+
+    min-width: 900px;
 }
 
 .train-table thead {
@@ -285,17 +560,23 @@
 
 .train-table th {
     padding: 16px;
+
     text-align: left;
 
     color: #94a3b8;
-    font-size: 13px;
+
+    font-size: 12px;
     font-weight: 600;
+
     text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .train-table td {
-    padding: 18px 16px;
+    padding: 17px 16px;
+
     border-top: 1px solid #273449;
+
     color: #e5e7eb;
 }
 
@@ -307,9 +588,31 @@
     background: #1b2538;
 }
 
+.train-name-cell strong {
+    color: #f8fafc;
+}
+
+.train-number {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.route-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    white-space: nowrap;
+}
+
+.route-arrow {
+    color: #60a5fa;
+    font-weight: 700;
+}
+
 
 /* =========================================================
-   Occupancy
+   OCCUPANCY
 ========================================================= */
 
 .occupancy-cell {
@@ -323,25 +626,31 @@
     height: 7px;
 
     background: #0f172a;
+
     border-radius: 10px;
+
     overflow: hidden;
 }
 
 .mini-progress-fill {
     height: 100%;
+
     background: #3b82f6;
+
     border-radius: 10px;
-    transition: width 0.4s ease;
+
+    transition: width 0.5s ease;
 }
 
 .occupancy-cell span {
     min-width: 40px;
+
     font-weight: 600;
 }
 
 
 /* =========================================================
-   Crowd Badge
+   CROWD BADGE
 ========================================================= */
 
 .crowd-badge {
@@ -353,6 +662,8 @@
 
     font-size: 13px;
     font-weight: 600;
+
+    white-space: nowrap;
 }
 
 .crowd-badge.high {
@@ -373,110 +684,202 @@
     border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
+.confidence-value {
+    color: #93c5fd;
+    font-weight: 600;
+}
+
 
 /* =========================================================
-   Empty State
+   EMPTY STATE
 ========================================================= */
 
 .empty-state {
-    padding: 50px;
+    padding: 55px 25px;
+
     text-align: center;
+
     color: #94a3b8;
 }
 
+.empty-icon {
+    font-size: 45px;
+    margin-bottom: 10px;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px 0;
+
+    color: #e5e7eb;
+    font-size: 21px;
+}
+
 .empty-state p {
-    margin: 0;
+    margin: 0 0 20px 0;
+}
+
+.empty-state button {
+    padding: 10px 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.empty-state button:hover {
+    background: #1d4ed8;
 }
 
 
 /* =========================================================
-   Crowd Summary Cards
+   CROWD GUIDE
 ========================================================= */
 
-.crowd-summary-grid {
-    max-width: 1200px;
-    margin: 0 auto 40px auto;
-
+.crowd-guide-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 18px;
 }
 
-.crowd-summary-card {
-    padding: 25px;
+.guide-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
 
-    border-radius: 15px;
+    padding: 20px;
 
-    background: #161f33;
+    background: #1b2538;
+
+    border-radius: 12px;
+
     border: 1px solid #334155;
+}
 
+.guide-icon {
+    font-size: 27px;
+}
+
+.guide-card h3 {
+    margin: 0;
+
+    font-size: 17px;
+    color: #f8fafc;
+}
+
+.guide-card p {
+    margin: 7px 0 0 0;
+
+    color: #94a3b8;
+
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.low-guide {
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.medium-guide {
+    border-color: rgba(234, 179, 8, 0.3);
+}
+
+.high-guide {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+
+/* =========================================================
+   REFRESH SECTION
+========================================================= */
+
+.refresh-section {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 25px;
+}
+
+.refresh-section h2 {
+    margin-bottom: 8px;
+}
+
+.refresh-section p {
+    margin: 0;
+
+    color: #94a3b8;
+    line-height: 1.6;
+}
+
+.refresh-button {
+    padding: 12px 20px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
 
     transition:
+        background 0.2s ease,
         transform 0.2s ease,
-        box-shadow 0.2s ease;
+        opacity 0.2s ease;
 }
 
-.crowd-summary-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+.refresh-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
-.crowd-summary-card h3 {
+.refresh-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================================
+   DISCLAIMER
+========================================================= */
+
+.dashboard-disclaimer {
+    max-width: 1200px;
+
+    margin: 0 auto 30px auto;
+
+    padding: 16px 20px;
+
+    background: rgba(59, 130, 246, 0.05);
+
+    border: 1px solid rgba(59, 130, 246, 0.2);
+
+    border-radius: 10px;
+}
+
+.dashboard-disclaimer p {
     margin: 0;
-    font-size: 17px;
-    color: #e5e7eb;
-}
 
-.crowd-summary-card span {
-    font-size: 32px;
-    font-weight: bold;
-}
+    color: #94a3b8;
 
-
-/* =========================================================
-   High Crowd Summary
-========================================================= */
-
-.high-summary {
-    border-color: rgba(239, 68, 68, 0.4);
-}
-
-.high-summary span {
-    color: #f87171;
+    font-size: 13px;
+    line-height: 1.7;
 }
 
 
 /* =========================================================
-   Medium Crowd Summary
-========================================================= */
-
-.medium-summary {
-    border-color: rgba(234, 179, 8, 0.4);
-}
-
-.medium-summary span {
-    color: #facc15;
-}
-
-
-/* =========================================================
-   Low Crowd Summary
-========================================================= */
-
-.low-summary {
-    border-color: rgba(34, 197, 94, 0.4);
-}
-
-.low-summary span {
-    color: #4ade80;
-}
-
-
-/* =========================================================
-   Responsive
+   RESPONSIVE — 1100px
 ========================================================= */
 
 @media (max-width: 1100px) {
@@ -488,14 +891,26 @@
 }
 
 
-@media (max-width: 800px) {
+/* =========================================================
+   RESPONSIVE — 900px
+========================================================= */
+
+@media (max-width: 900px) {
 
     .dashboard-page {
-        padding: 25px 15px;
+        padding: 30px 20px;
     }
 
-    .dashboard-stats {
-        grid-template-columns: repeat(2, 1fr);
+    .dashboard-header {
+        align-items: flex-start;
+    }
+
+    .dashboard-header h1 {
+        font-size: 28px;
+    }
+
+    .dashboard-header p {
+        margin-left: 0;
     }
 
     .distribution-container {
@@ -506,12 +921,62 @@
         grid-template-columns: 1fr;
     }
 
-    .dashboard-section {
-        padding: 22px;
+    .crowd-guide-grid {
+        grid-template-columns: 1fr;
     }
 
 }
 
+
+/* =========================================================
+   RESPONSIVE — 700px
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .dashboard-page {
+        padding: 25px 15px;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+    }
+
+    .header-refresh-button {
+        width: 100%;
+    }
+
+    .dashboard-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-section {
+        padding: 22px;
+    }
+
+    .section-heading {
+        flex-direction: column;
+    }
+
+    .prediction-count {
+        align-self: flex-start;
+    }
+
+    .refresh-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .refresh-button {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 500px
+========================================================= */
 
 @media (max-width: 500px) {
 
@@ -519,8 +984,16 @@
         padding: 20px 12px;
     }
 
+    .dashboard-title-row {
+        align-items: flex-start;
+    }
+
+    .dashboard-title-icon {
+        font-size: 26px;
+    }
+
     .dashboard-header h1 {
-        font-size: 25px;
+        font-size: 24px;
     }
 
     .dashboard-header p {
@@ -531,16 +1004,28 @@
         grid-template-columns: 1fr;
     }
 
-    .dashboard-section {
+    .stat-card {
         padding: 18px;
     }
 
-    .stat-card {
+    .dashboard-section {
         padding: 18px;
     }
 
     .dashboard-section h2 {
         font-size: 20px;
+    }
+
+    .crowd-summary-card {
+        padding: 19px;
+    }
+
+    .crowd-summary-card > span {
+        font-size: 25px;
+    }
+
+    .dashboard-disclaimer {
+        padding: 14px 16px;
     }
 
 }

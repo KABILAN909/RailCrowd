@@ -1,127 +1,178 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import "./Dashboard.css";
 
 const API_URL = "http://127.0.0.1:5000/api/analytics";
 
 function Dashboard() {
-    // =========================================================
-    // State
-    // =========================================================
-
     const [analytics, setAnalytics] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState("");
 
     // =========================================================
-    // Fetch Dashboard Analytics
+    // FETCH ANALYTICS
     // =========================================================
 
-    const fetchAnalytics = async () => {
+    const fetchAnalytics = useCallback(async (isRefresh = false) => {
         try {
-            setLoading(true);
-            setError(null);
+            if (isRefresh) {
+                setRefreshing(true);
+            } else {
+                setLoading(true);
+            }
+
+            setError("");
 
             const response = await fetch(API_URL);
-            const data = await response.json();
 
-            if (!response.ok || !data.success) {
+            let data;
+
+            try {
+                data = await response.json();
+            } catch {
                 throw new Error(
-                    data.message ||
-                    "Failed to load dashboard analytics"
+                    "Invalid response received from RailCrowd backend."
+                );
+            }
+
+            console.log("📊 Analytics API response:", data);
+
+            if (!response.ok || !data?.success) {
+                throw new Error(
+                    data?.message ||
+                    `Analytics request failed with status ${response.status}`
+                );
+            }
+
+            if (!data.analytics) {
+                throw new Error(
+                    "Analytics data is missing from the server response."
                 );
             }
 
             setAnalytics(data.analytics);
-        } catch (error) {
+
+        } catch (err) {
             console.error(
-                "Dashboard analytics error:",
-                error
+                "❌ Dashboard analytics error:",
+                err
             );
 
-            setError(error.message);
+            setError(
+                err?.message ||
+                "Unable to load RailCrowd analytics."
+            );
+
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
-    };
-
-    // =========================================================
-    // Load Analytics
-    // =========================================================
-
-    useEffect(() => {
-        fetchAnalytics();
     }, []);
 
     // =========================================================
-    // Loading State
+    // INITIAL LOAD
+    // =========================================================
+
+    useEffect(() => {
+        fetchAnalytics(false);
+    }, [fetchAnalytics]);
+
+    // =========================================================
+    // LOADING SCREEN
     // =========================================================
 
     if (loading) {
         return (
-            <div className="dashboard-page">
+            <div className="dashboard-page dashboard-center">
                 <div className="dashboard-loading">
+
+                    <div className="loading-spinner" />
+
                     <h2>
                         🤖 Loading RailCrowd Analytics...
                     </h2>
 
                     <p>
-                        Analyzing general coach crowd predictions.
+                        Analyzing crowd predictions for
+                        general / unreserved coaches.
                     </p>
+
                 </div>
             </div>
         );
     }
 
     // =========================================================
-    // Error State
+    // ERROR SCREEN
     // =========================================================
 
     if (error) {
         return (
-            <div className="dashboard-page">
+            <div className="dashboard-page dashboard-center">
+
                 <div className="dashboard-error">
+
+                    <div className="error-icon">
+                        ⚠️
+                    </div>
+
                     <h2>
-                        ⚠️ Unable to Load Dashboard
+                        Unable to Load Dashboard
                     </h2>
 
                     <p>
                         {error}
                     </p>
 
-                    <button onClick={fetchAnalytics}>
-                        Try Again
+                    <button
+                        onClick={() => fetchAnalytics(false)}
+                    >
+                        🔄 Try Again
                     </button>
+
                 </div>
+
             </div>
         );
     }
 
     // =========================================================
-    // Safety Check
+    // SAFETY CHECK
     // =========================================================
 
     if (!analytics) {
         return (
-            <div className="dashboard-page">
+            <div className="dashboard-page dashboard-center">
+
                 <div className="dashboard-error">
+
+                    <div className="error-icon">
+                        📊
+                    </div>
+
                     <h2>
-                        No analytics data available
+                        No Analytics Available
                     </h2>
 
                     <p>
-                        RailCrowd could not find any prediction data.
+                        RailCrowd could not find prediction
+                        analytics at the moment.
                     </p>
 
-                    <button onClick={fetchAnalytics}>
-                        Refresh Dashboard
+                    <button
+                        onClick={() => fetchAnalytics(false)}
+                    >
+                        🔄 Refresh Dashboard
                     </button>
+
                 </div>
+
             </div>
         );
     }
 
     // =========================================================
-    // Extract Analytics Data
+    // DATA
     // =========================================================
 
     const summary = analytics.summary || {};
@@ -130,114 +181,174 @@ function Dashboard() {
         analytics.crowd_distribution || {};
 
     const allPredictions =
-        analytics.all_predictions || [];
-
-    const highCrowdTrains =
-        analytics.high_crowd_trains || [];
-
-    const mediumCrowdTrains =
-        analytics.medium_crowd_trains || [];
-
-    const lowCrowdTrains =
-        analytics.low_crowd_trains || [];
+        Array.isArray(analytics.all_predictions)
+            ? analytics.all_predictions
+            : [];
 
     // =========================================================
-    // Helper: Crowd CSS Class
+    // SAFE VALUES
     // =========================================================
 
-    const getCrowdClass = (crowd) => {
-        if (!crowd) {
-            return "medium";
+    const totalTrains =
+        Number(summary.total_trains ?? 0);
+
+    const averageOccupancy =
+        Number(summary.average_occupancy ?? 0);
+
+    const highCrowdCount =
+        Number(summary.high_crowd_trains ?? 0);
+
+    const mediumCrowdCount =
+        Number(summary.medium_crowd_trains ?? 0);
+
+    const lowCrowdCount =
+        Number(summary.low_crowd_trains ?? 0);
+
+    // =========================================================
+    // HELPERS
+    // =========================================================
+
+    const getOccupancy = (value) => {
+        const number = Number(value ?? 0);
+
+        if (Number.isNaN(number)) {
+            return 0;
         }
 
-        const level = String(crowd).toLowerCase();
+        return Math.min(
+            Math.max(number, 0),
+            100
+        );
+    };
+
+    const getCrowdClass = (crowd) => {
+        const level =
+            String(crowd || "")
+                .toLowerCase();
 
         if (level === "high") {
             return "high";
         }
 
-        if (level === "medium") {
-            return "medium";
+        if (level === "low") {
+            return "low";
         }
 
-        return "low";
+        return "medium";
+    };
+
+    const getCrowdIcon = (crowd) => {
+        const level =
+            String(crowd || "")
+                .toLowerCase();
+
+        if (level === "high") {
+            return "🔴";
+        }
+
+        if (level === "low") {
+            return "🟢";
+        }
+
+        return "🟡";
     };
 
     // =========================================================
-    // Helper: Safe Occupancy
+    // DISTRIBUTION
     // =========================================================
 
-    const getOccupancy = (value) => {
-        const occupancy = Number(value) || 0;
+    const lowPercentage = getOccupancy(
+        distribution.low?.percentage
+    );
 
-        if (occupancy < 0) {
-            return 0;
-        }
+    const mediumPercentage = getOccupancy(
+        distribution.medium?.percentage
+    );
 
-        if (occupancy > 100) {
-            return 100;
-        }
-
-        return occupancy;
-    };
+    const highPercentage = getOccupancy(
+        distribution.high?.percentage
+    );
 
     // =========================================================
-    // Most Crowded Train
+    // MOST / LEAST CROWDED
     // =========================================================
+
+    const sortedPredictions = [
+        ...allPredictions
+    ].sort(
+        (a, b) =>
+            getOccupancy(b.occupancy) -
+            getOccupancy(a.occupancy)
+    );
 
     const mostCrowdedTrain =
-        allPredictions.length > 0
-            ? [...allPredictions].sort(
-                (a, b) =>
-                    getOccupancy(b.occupancy) -
-                    getOccupancy(a.occupancy)
-            )[0]
-            : null;
-
-    // =========================================================
-    // Least Crowded Train
-    // =========================================================
+        sortedPredictions[0] || null;
 
     const leastCrowdedTrain =
-        allPredictions.length > 0
-            ? [...allPredictions].sort(
-                (a, b) =>
-                    getOccupancy(a.occupancy) -
-                    getOccupancy(b.occupancy)
-            )[0]
-            : null;
+        sortedPredictions[
+            sortedPredictions.length - 1
+        ] || null;
 
     // =========================================================
-    // Dashboard UI
+    // REFRESH
+    // =========================================================
+
+    const handleRefresh = () => {
+        fetchAnalytics(true);
+    };
+
+    // =========================================================
+    // UI
     // =========================================================
 
     return (
         <div className="dashboard-page">
 
             {/* ================================================= */}
-            {/* Header */}
+            {/* HEADER */}
             {/* ================================================= */}
 
             <div className="dashboard-header">
+
                 <div>
-                    <h1>
-                        📊 RailCrowd Dashboard
-                    </h1>
+                    <div className="dashboard-title-row">
+
+                        <span className="dashboard-title-icon">
+                            📊
+                        </span>
+
+                        <h1>
+                            RailCrowd Dashboard
+                        </h1>
+
+                    </div>
 
                     <p>
                         Crowd intelligence for general and
                         unreserved railway passengers.
                     </p>
                 </div>
+
+                <button
+                    className="header-refresh-button"
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                >
+                    {refreshing
+                        ? "⏳ Updating..."
+                        : "🔄 Refresh"}
+                </button>
+
             </div>
 
             {/* ================================================= */}
-            {/* Summary Cards */}
+            {/* SUMMARY STATS */}
             {/* ================================================= */}
 
             <div className="dashboard-stats">
 
                 <div className="stat-card">
+
                     <div className="stat-icon">
                         🚆
                     </div>
@@ -248,12 +359,14 @@ function Dashboard() {
                         </p>
 
                         <h2>
-                            {summary.total_trains || 0}
+                            {totalTrains}
                         </h2>
                     </div>
+
                 </div>
 
                 <div className="stat-card">
+
                     <div className="stat-icon">
                         📈
                     </div>
@@ -264,12 +377,14 @@ function Dashboard() {
                         </p>
 
                         <h2>
-                            {summary.average_occupancy || 0}%
+                            {averageOccupancy}%
                         </h2>
                     </div>
+
                 </div>
 
                 <div className="stat-card high-card">
+
                     <div className="stat-icon">
                         🔴
                     </div>
@@ -280,12 +395,14 @@ function Dashboard() {
                         </p>
 
                         <h2>
-                            {summary.high_crowd_trains || 0}
+                            {highCrowdCount}
                         </h2>
                     </div>
+
                 </div>
 
                 <div className="stat-card medium-card">
+
                     <div className="stat-icon">
                         🟡
                     </div>
@@ -296,12 +413,14 @@ function Dashboard() {
                         </p>
 
                         <h2>
-                            {summary.medium_crowd_trains || 0}
+                            {mediumCrowdCount}
                         </h2>
                     </div>
+
                 </div>
 
                 <div className="stat-card low-card">
+
                     <div className="stat-icon">
                         🟢
                     </div>
@@ -312,28 +431,40 @@ function Dashboard() {
                         </p>
 
                         <h2>
-                            {summary.low_crowd_trains || 0}
+                            {lowCrowdCount}
                         </h2>
                     </div>
+
                 </div>
 
             </div>
 
             {/* ================================================= */}
-            {/* Crowd Distribution */}
+            {/* CROWD DISTRIBUTION */}
             {/* ================================================= */}
 
             <div className="dashboard-section">
 
-                <h2>
-                    📊 Crowd Distribution
-                </h2>
+                <div className="section-heading">
+
+                    <div>
+                        <h2>
+                            📊 Crowd Distribution
+                        </h2>
+
+                        <p>
+                            Distribution of predicted crowd
+                            levels across analyzed trains.
+                        </p>
+                    </div>
+
+                </div>
 
                 <div className="distribution-container">
 
-                    {/* Low Crowd */}
+                    {/* LOW */}
 
-                    <div className="distribution-item">
+                    <div className="distribution-item low-distribution">
 
                         <div className="distribution-header">
 
@@ -342,7 +473,7 @@ function Dashboard() {
                             </span>
 
                             <strong>
-                                {distribution.low?.percentage || 0}%
+                                {lowPercentage}%
                             </strong>
 
                         </div>
@@ -352,23 +483,23 @@ function Dashboard() {
                             <div
                                 className="progress-fill low-progress"
                                 style={{
-                                    width: `${getOccupancy(
-                                        distribution.low?.percentage
-                                    )}%`
+                                    width: `${lowPercentage}%`
                                 }}
                             />
 
                         </div>
 
                         <p>
-                            {distribution.low?.count || 0} trains
+                            {Number(
+                                distribution.low?.count ?? 0
+                            )} trains
                         </p>
 
                     </div>
 
-                    {/* Medium Crowd */}
+                    {/* MEDIUM */}
 
-                    <div className="distribution-item">
+                    <div className="distribution-item medium-distribution">
 
                         <div className="distribution-header">
 
@@ -377,7 +508,7 @@ function Dashboard() {
                             </span>
 
                             <strong>
-                                {distribution.medium?.percentage || 0}%
+                                {mediumPercentage}%
                             </strong>
 
                         </div>
@@ -387,23 +518,23 @@ function Dashboard() {
                             <div
                                 className="progress-fill medium-progress"
                                 style={{
-                                    width: `${getOccupancy(
-                                        distribution.medium?.percentage
-                                    )}%`
+                                    width: `${mediumPercentage}%`
                                 }}
                             />
 
                         </div>
 
                         <p>
-                            {distribution.medium?.count || 0} trains
+                            {Number(
+                                distribution.medium?.count ?? 0
+                            )} trains
                         </p>
 
                     </div>
 
-                    {/* High Crowd */}
+                    {/* HIGH */}
 
-                    <div className="distribution-item">
+                    <div className="distribution-item high-distribution">
 
                         <div className="distribution-header">
 
@@ -412,7 +543,7 @@ function Dashboard() {
                             </span>
 
                             <strong>
-                                {distribution.high?.percentage || 0}%
+                                {highPercentage}%
                             </strong>
 
                         </div>
@@ -422,16 +553,16 @@ function Dashboard() {
                             <div
                                 className="progress-fill high-progress"
                                 style={{
-                                    width: `${getOccupancy(
-                                        distribution.high?.percentage
-                                    )}%`
+                                    width: `${highPercentage}%`
                                 }}
                             />
 
                         </div>
 
                         <p>
-                            {distribution.high?.count || 0} trains
+                            {Number(
+                                distribution.high?.count ?? 0
+                            )} trains
                         </p>
 
                     </div>
@@ -441,25 +572,35 @@ function Dashboard() {
             </div>
 
             {/* ================================================= */}
-            {/* Travel Insights */}
+            {/* TRAVEL INSIGHTS */}
             {/* ================================================= */}
 
             <div className="crowd-summary-grid">
 
+                {/* MOST CROWDED */}
+
                 <div className="crowd-summary-card high-summary">
 
                     <div>
+
                         <h3>
-                            🔴 Most Crowded
+                            🔴 Most Crowded Train
                         </h3>
 
                         <p>
                             {mostCrowdedTrain
                                 ? mostCrowdedTrain.train_name ||
-                                  mostCrowdedTrain.train_number ||
                                   "Unknown Train"
                                 : "No data available"}
                         </p>
+
+                        {mostCrowdedTrain && (
+                            <small>
+                                Train No:{" "}
+                                {mostCrowdedTrain.train_number}
+                            </small>
+                        )}
+
                     </div>
 
                     <span>
@@ -472,38 +613,53 @@ function Dashboard() {
 
                 </div>
 
-                <div className="crowd-summary-card medium-summary">
+                {/* AVERAGE */}
+
+                <div className="crowd-summary-card average-summary">
 
                     <div>
+
                         <h3>
-                            📊 Average Crowd
+                            📊 Network Average
                         </h3>
 
                         <p>
-                            Across all analyzed trains
+                            Average predicted occupancy
+                            across analyzed trains.
                         </p>
+
                     </div>
 
                     <span>
-                        {summary.average_occupancy || 0}%
+                        {averageOccupancy}%
                     </span>
 
                 </div>
 
+                {/* LEAST CROWDED */}
+
                 <div className="crowd-summary-card low-summary">
 
                     <div>
+
                         <h3>
-                            🟢 Least Crowded
+                            🟢 Least Crowded Train
                         </h3>
 
                         <p>
                             {leastCrowdedTrain
                                 ? leastCrowdedTrain.train_name ||
-                                  leastCrowdedTrain.train_number ||
                                   "Unknown Train"
                                 : "No data available"}
                         </p>
+
+                        {leastCrowdedTrain && (
+                            <small>
+                                Train No:{" "}
+                                {leastCrowdedTrain.train_number}
+                            </small>
+                        )}
+
                     </div>
 
                     <span>
@@ -519,26 +675,59 @@ function Dashboard() {
             </div>
 
             {/* ================================================= */}
-            {/* Train Predictions */}
+            {/* TRAIN PREDICTIONS */}
             {/* ================================================= */}
 
             <div className="dashboard-section">
 
-                <h2>
-                    🚆 General Coach Crowd Predictions
-                </h2>
+                <div className="section-heading">
+
+                    <div>
+
+                        <h2>
+                            🚆 General Coach Crowd Predictions
+                        </h2>
+
+                        <p>
+                            Estimated crowd levels based on
+                            RailCrowd's prediction engine.
+                        </p>
+
+                    </div>
+
+                    <div className="prediction-count">
+                        {allPredictions.length}{" "}
+                        {allPredictions.length === 1
+                            ? "Train"
+                            : "Trains"}
+                    </div>
+
+                </div>
 
                 {allPredictions.length === 0 ? (
 
                     <div className="empty-state">
-                        <p>
-                            No train prediction data available yet.
-                        </p>
+
+                        <div className="empty-icon">
+                            📭
+                        </div>
+
+                        <h3>
+                            No Prediction Data
+                        </h3>
 
                         <p>
-                            Generate a crowd prediction to see
-                            RailCrowd analytics here.
+                            No train prediction data is
+                            available at the moment.
                         </p>
+
+                        <button
+                            onClick={handleRefresh}
+                            disabled={refreshing}
+                        >
+                            🔄 Refresh Analytics
+                        </button>
+
                     </div>
 
                 ) : (
@@ -554,8 +743,8 @@ function Dashboard() {
                                     <th>Number</th>
                                     <th>Route</th>
                                     <th>Occupancy</th>
-                                    <th>Crowd Level</th>
-                                    <th>AI Confidence</th>
+                                    <th>Crowd</th>
+                                    <th>Confidence</th>
                                 </tr>
 
                             </thead>
@@ -570,35 +759,65 @@ function Dashboard() {
                                                 train.occupancy
                                             );
 
-                                        return (
+                                        const crowd =
+                                            train.crowd ||
+                                            "Medium";
 
+                                        const confidence =
+                                            getOccupancy(
+                                                train.confidence
+                                            );
+
+                                        return (
                                             <tr
-                                                key={
-                                                    `${train.train_number}-${index}`
-                                                }
+                                                key={`${train.train_number || "train"}-${index}`}
                                             >
 
-                                                <td>
-                                                    <strong>
-                                                        {train.train_name ||
-                                                            "Unknown Train"}
-                                                    </strong>
-                                                </td>
+                                                {/* TRAIN */}
 
                                                 <td>
-                                                    {train.train_number ||
-                                                        "--"}
+                                                    <div className="train-name-cell">
+
+                                                        <strong>
+                                                            {train.train_name ||
+                                                                "Unknown Train"}
+                                                        </strong>
+
+                                                    </div>
                                                 </td>
+
+                                                {/* NUMBER */}
 
                                                 <td>
-                                                    {train.source ||
-                                                        "Unknown"}
-
-                                                    {" → "}
-
-                                                    {train.destination ||
-                                                        "Unknown"}
+                                                    <span className="train-number">
+                                                        {train.train_number ||
+                                                            "--"}
+                                                    </span>
                                                 </td>
+
+                                                {/* ROUTE */}
+
+                                                <td>
+                                                    <div className="route-cell">
+
+                                                        <span>
+                                                            {train.source ||
+                                                                "Unknown"}
+                                                        </span>
+
+                                                        <span className="route-arrow">
+                                                            →
+                                                        </span>
+
+                                                        <span>
+                                                            {train.destination ||
+                                                                "Unknown"}
+                                                        </span>
+
+                                                    </div>
+                                                </td>
+
+                                                {/* OCCUPANCY */}
 
                                                 <td>
 
@@ -623,27 +842,33 @@ function Dashboard() {
 
                                                 </td>
 
+                                                {/* CROWD */}
+
                                                 <td>
 
                                                     <span
                                                         className={`crowd-badge ${getCrowdClass(
-                                                            train.crowd
+                                                            crowd
                                                         )}`}
                                                     >
-                                                        {train.crowd ||
-                                                            "Medium"}
+                                                        {getCrowdIcon(crowd)}{" "}
+                                                        {crowd}
                                                     </span>
 
                                                 </td>
 
+                                                {/* CONFIDENCE */}
+
                                                 <td>
-                                                    {train.confidence || 0}%
+
+                                                    <span className="confidence-value">
+                                                        🤖 {confidence}%
+                                                    </span>
+
                                                 </td>
 
                                             </tr>
-
                                         );
-
                                     }
                                 )}
 
@@ -658,101 +883,122 @@ function Dashboard() {
             </div>
 
             {/* ================================================= */}
-            {/* Crowd Summary */}
+            {/* CROWD STATUS GUIDE */}
             {/* ================================================= */}
 
-            <div className="crowd-summary-grid">
+            <div className="dashboard-section">
 
-                <div className="crowd-summary-card high-summary">
+                <h2>
+                    🚦 Crowd Level Guide
+                </h2>
 
-                    <div>
-                        <h3>
-                            🔴 High Crowd Trains
-                        </h3>
+                <div className="crowd-guide-grid">
 
-                        <p>
-                            Consider alternative trains or travel times.
-                        </p>
+                    <div className="guide-card low-guide">
+
+                        <span className="guide-icon">
+                            🟢
+                        </span>
+
+                        <div>
+                            <h3>
+                                Low Crowd
+                            </h3>
+
+                            <p>
+                                Relatively lower occupancy
+                                and better space availability.
+                            </p>
+                        </div>
+
                     </div>
 
-                    <span>
-                        {highCrowdTrains.length}
-                    </span>
+                    <div className="guide-card medium-guide">
 
-                </div>
+                        <span className="guide-icon">
+                            🟡
+                        </span>
 
-                <div className="crowd-summary-card medium-summary">
+                        <div>
+                            <h3>
+                                Medium Crowd
+                            </h3>
 
-                    <div>
-                        <h3>
-                            🟡 Medium Crowd Trains
-                        </h3>
+                            <p>
+                                Moderate congestion.
+                                Early boarding is recommended.
+                            </p>
+                        </div>
 
-                        <p>
-                            Moderate passenger congestion expected.
-                        </p>
                     </div>
 
-                    <span>
-                        {mediumCrowdTrains.length}
-                    </span>
+                    <div className="guide-card high-guide">
 
-                </div>
+                        <span className="guide-icon">
+                            🔴
+                        </span>
 
-                <div className="crowd-summary-card low-summary">
+                        <div>
+                            <h3>
+                                High Crowd
+                            </h3>
 
-                    <div>
-                        <h3>
-                            🟢 Low Crowd Trains
-                        </h3>
+                            <p>
+                                Heavy crowd expected in
+                                general / unreserved coaches.
+                            </p>
+                        </div>
 
-                        <p>
-                            Better options for a comfortable journey.
-                        </p>
                     </div>
-
-                    <span>
-                        {lowCrowdTrains.length}
-                    </span>
 
                 </div>
 
             </div>
 
             {/* ================================================= */}
-            {/* Refresh Analytics */}
+            {/* REFRESH */}
             {/* ================================================= */}
 
-            <div className="dashboard-section">
+            <div className="dashboard-section refresh-section">
 
-                <h2>
-                    🔄 Update RailCrowd Analytics
-                </h2>
+                <div>
 
-                <p
-                    style={{
-                        color: "#94a3b8",
-                        marginBottom: "20px"
-                    }}
-                >
-                    Refresh the dashboard to load the latest
-                    available crowd prediction data.
-                </p>
+                    <h2>
+                        🔄 Update RailCrowd Analytics
+                    </h2>
+
+                    <p>
+                        Refresh to load the latest available
+                        crowd prediction calculations.
+                    </p>
+
+                </div>
 
                 <button
-                    onClick={fetchAnalytics}
-                    style={{
-                        padding: "12px 22px",
-                        border: "none",
-                        borderRadius: "8px",
-                        background: "#2563eb",
-                        color: "#ffffff",
-                        fontSize: "15px",
-                        cursor: "pointer"
-                    }}
+                    className="refresh-button"
+                    onClick={handleRefresh}
+                    disabled={refreshing}
                 >
-                    🔄 Refresh Analytics
+                    {refreshing
+                        ? "⏳ Updating Analytics..."
+                        : "🔄 Refresh Analytics"}
                 </button>
+
+            </div>
+
+            {/* ================================================= */}
+            {/* DISCLAIMER */}
+            {/* ================================================= */}
+
+            <div className="dashboard-disclaimer">
+
+                <p>
+                    ℹ️ RailCrowd provides estimated crowd
+                    predictions based on available train and
+                    travel factors. These values should not be
+                    treated as official railway occupancy or
+                    real-time passenger counts.
+                </p>
 
             </div>
 
