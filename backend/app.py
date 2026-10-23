@@ -1,3 +1,4 @@
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 
@@ -11,6 +12,7 @@ from routes.train_routes import train_bp
 from routes.stations import stations_bp
 from routes.prediction import prediction_bp
 from routes.analytics import analytics_bp
+from routes.crowd_reports import crowd_reports_bp
 
 
 # ============================================================
@@ -22,7 +24,6 @@ app = Flask(__name__)
 
 # ============================================================
 # Enable CORS
-#
 # Allow React frontend to access Flask API
 # ============================================================
 
@@ -42,6 +43,8 @@ app.register_blueprint(stations_bp)
 app.register_blueprint(prediction_bp)
 
 app.register_blueprint(analytics_bp)
+
+app.register_blueprint(crowd_reports_bp)
 
 
 # ============================================================
@@ -91,14 +94,13 @@ def not_found(error):
 def internal_error(error):
 
     print(
-        "❌ INTERNAL SERVER ERROR:",
+        "INTERNAL SERVER ERROR:",
         error
     )
 
     return jsonify({
         "success": False,
-        "message": "Internal server error",
-        "error": str(error)
+        "message": "Internal server error"
     }), 500
 
 
