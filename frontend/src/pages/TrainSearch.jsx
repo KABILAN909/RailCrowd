@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import TrainCard from "../components/TrainCard";
@@ -7,26 +6,26 @@ const API_BASE = "http://127.0.0.1:5000/api";
 
 function getTrainNumber(train) {
   return String(
-    train.train_number ??
-      train.train_no ??
-      train.number ??
+    train?.train_number ??
+      train?.train_no ??
+      train?.number ??
       ""
-  );
+  ).trim();
 }
 
 function getCrowd(train) {
-  const value = String(train.crowd ?? "").toLowerCase();
+  const value = String(train?.crowd ?? "").toLowerCase();
 
   if (value.includes("high")) return "High";
   if (value.includes("medium")) return "Medium";
   if (value.includes("low")) return "Low";
 
-  const occupancy = Number(train.occupancy);
+  const occupancy = Number(train?.occupancy);
 
   if (
-    train.occupancy !== null &&
-    train.occupancy !== undefined &&
-    train.occupancy !== "" &&
+    train?.occupancy !== null &&
+    train?.occupancy !== undefined &&
+    train?.occupancy !== "" &&
     Number.isFinite(occupancy)
   ) {
     if (occupancy < 50) return "Low";
@@ -38,20 +37,43 @@ function getCrowd(train) {
 }
 
 function getOccupancy(train) {
-  const value = Number(train.occupancy);
+  const value = Number(train?.occupancy);
 
-  return train.occupancy !== null &&
-    train.occupancy !== undefined &&
-    train.occupancy !== "" &&
+  return (
+    train?.occupancy !== null &&
+    train?.occupancy !== undefined &&
+    train?.occupancy !== "" &&
     Number.isFinite(value)
+  )
     ? value
     : -1;
+}
+
+async function fetchJSON(url) {
+  const response = await fetch(url);
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("The server returned an invalid response.");
+  }
+
+  if (!response.ok || !data.success) {
+    throw new Error(
+      data.message || `Request failed: ${response.status}`
+    );
+  }
+
+  return data;
 }
 
 function TrainSearch() {
   const [trains, setTrains] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [searchParams] = useSearchParams();
 
   const [searchText, setSearchText] = useState("");
@@ -67,26 +89,6 @@ function TrainSearch() {
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchJSON(url) {
-      const response = await fetch(url);
-
-      let data;
-
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error("The server returned an invalid response.");
-      }
-
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data.message || `Request failed: ${response.status}`
-        );
-      }
-
-      return data;
-    }
-
     async function fetchTrains() {
       setLoading(true);
       setError("");
@@ -94,22 +96,101 @@ function TrainSearch() {
       try {
         let trainList = [];
 
+        // Load route search results and enrich them with predictions.
         if (from && to) {
-          const url =
+          const routeUrl =
             `${API_BASE}/trains/search?from=${encodeURIComponent(from)}` +
             `&to=${encodeURIComponent(to)}`;
 
-          const data = await fetchJSON(url);
-          trainList = Array.isArray(data.trains)
-            ? data.trains
-            : [];
-        } else {
-          const data = await fetchJSON(`${API_BASE}/analytics`);
-          const analytics = data.analytics || {};
+          const [routeData, analyticsData] = await Promise.all([
+            fetchJSON(routeUrl),
+            fetchJSON(`${API_BASE}/analytics`),
+          ]);
 
-          const predictions = Array.isArray(
-            analytics.all_predictions
-          )
+          const routeTrains = Array.isArray(routeData.trains)
+            ? routeData.trains
+            : [];
+
+          const analytics = analyticsData.analytics || {};
+
+          const predictions = Array.isArray(analytics.all_predictions)
+            ? analytics.all_predictions
+            : [];
+
+          // Index predictions by train number for quick matching.
+          const predictionMap = new Map();
+
+          predictions.forEach((prediction) => {
+            const number = getTrainNumber(prediction);
+
+            if (number) {
+              predictionMap.set(number, prediction);
+            }
+          });
+
+          trainList = routeTrains.map((routeTrain) => {
+            const number = getTrainNumber(routeTrain);
+            const prediction = predictionMap.get(number);
+
+            if (!prediction) {
+              return {
+                ...routeTrain,
+                train_number: number,
+              };
+            }
+
+            // Keep route-specific station details and add prediction data.
+            return {
+              ...prediction,
+              ...routeTrain,
+
+              train_number: number,
+
+              train_name:
+                routeTrain.train_name ??
+                prediction.train_name ??
+                "Unknown Train",
+
+              from_station_code:
+                routeTrain.from_station_code ?? from,
+
+              to_station_code:
+                routeTrain.to_station_code ?? to,
+
+              departure_time:
+                routeTrain.departure_time ??
+                prediction.departure_time ??
+                null,
+
+              arrival_time:
+                routeTrain.arrival_time ??
+                prediction.arrival_time ??
+                null,
+
+              occupancy: prediction.occupancy ?? null,
+              crowd: prediction.crowd ?? null,
+              confidence: prediction.confidence ?? null,
+
+              coach:
+                prediction.coach ??
+                routeTrain.coach ??
+                "To be announced",
+
+              platform:
+                prediction.platform ??
+                routeTrain.platform ??
+                "To be announced",
+            };
+          });
+        } else {
+          // No route selected: show trains with available predictions.
+          const analyticsData = await fetchJSON(
+            `${API_BASE}/analytics`
+          );
+
+          const analytics = analyticsData.analytics || {};
+
+          const predictions = Array.isArray(analytics.all_predictions)
             ? analytics.all_predictions
             : [];
 
@@ -136,26 +217,34 @@ function TrainSearch() {
                 return {
                   ...first,
                   ...prediction,
+
                   train_number: number,
+
                   train_name:
                     prediction.train_name ??
-                    prediction.name ??
-                    first.train_name,
+                    first.train_name ??
+                    "Unknown Train",
+
                   from_station_code:
                     prediction.from_station_code ??
                     first.station_code,
+
                   from_station_name:
                     prediction.from_station_name ??
                     first.station_name,
+
                   to_station_code:
                     prediction.to_station_code ??
                     last.station_code,
+
                   to_station_name:
                     prediction.to_station_name ??
                     last.station_name,
+
                   departure_time:
                     prediction.departure_time ??
                     first.departure_time,
+
                   arrival_time:
                     prediction.arrival_time ??
                     last.arrival_time,
@@ -183,7 +272,9 @@ function TrainSearch() {
           setTrains([]);
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
@@ -225,6 +316,7 @@ function TrainSearch() {
         const aValue = getOccupancy(a);
         const bValue = getOccupancy(b);
 
+        if (aValue < 0 && bValue < 0) return 0;
         if (aValue < 0) return 1;
         if (bValue < 0) return -1;
 
@@ -368,7 +460,7 @@ function TrainSearch() {
 
         {loading && (
           <p className="text-center text-lg py-12">
-            🚆 Loading trains and station details...
+            🚆 Loading trains and predictions...
           </p>
         )}
 
@@ -381,25 +473,31 @@ function TrainSearch() {
             <p className="text-gray-400 mt-2">
               Check that the Flask backend is running and try again.
             </p>
+
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-5 rounded-lg bg-blue-600 px-5 py-3 font-semibold hover:bg-blue-700 transition"
+            >
+              Retry
+            </button>
           </div>
         )}
 
-        {!loading &&
-          !error &&
-          filteredTrains.length > 0 && (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredTrains.map((train, index) => (
-                <TrainCard
-                  key={
-                    train.train_id ||
-                    getTrainNumber(train) ||
-                    index
-                  }
-                  train={train}
-                />
-              ))}
-            </div>
-          )}
+        {!loading && !error && filteredTrains.length > 0 && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredTrains.map((train, index) => (
+              <TrainCard
+                key={
+                  train.train_id ||
+                  getTrainNumber(train) ||
+                  index
+                }
+                train={train}
+              />
+            ))}
+          </div>
+        )}
 
         {!loading &&
           !error &&
@@ -427,7 +525,7 @@ function TrainSearch() {
         {!loading && !error && trains.length === 0 && (
           <div className="text-center py-12">
             <p className="text-yellow-400 text-xl font-semibold">
-              No trains available.
+              No trains available for this search.
             </p>
 
             <p className="text-gray-400 mt-2">
